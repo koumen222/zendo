@@ -8,40 +8,15 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simuler le chargement de produits vedettes
-    // En production, vous pourriez avoir une API pour récupérer les produits
+    // Produit Hismile uniquement
     setTimeout(() => {
       setFeaturedProducts([
         {
-          slug: 'serum-visage-vitamine-c',
-          name: 'Sérum Visage Vitamine C',
-          price: '29,900 FCFA',
-          shortDesc: 'Éclat et luminosité pour votre peau. Formule enrichie en vitamine C naturelle.',
-          productImages: [],
-        },
-        {
-          slug: 'huile-argan-pure',
-          name: 'Huile d\'Argan Pure',
-          price: '19,900 FCFA',
-          shortDesc: 'Hydratation intense pour le visage, le corps et les cheveux. 100% naturelle.',
-          productImages: [],
-        },
-        {
-          slug: 'masque-detox-argile',
-          name: 'Masque Détox à l\'Argile',
-          price: '14,900 FCFA',
-          shortDesc: 'Purifie et nettoie en profondeur. Parfait pour les peaux mixtes à grasses.',
-          productImages: [],
-        },
-        {
           slug: 'serum-correcteur-de-teinte-pour-les-dents-effet-instantane-sans-peroxyde-sourire-plus-net',
-          name: 'Hismile™ – Sérum Blanchissant Dentaire',
+          name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
           price: 'Prix sur demande',
-          shortDesc: 'Effet instantané sans peroxyde. Sourire plus net en quelques minutes.',
-          productImages: [
-            'https://zendo.site/cdn/shop/files/hismile-serum-dents-1.jpg',
-            'https://zendo.site/cdn/shop/files/hismile-serum-dents-2.jpg',
-          ],
+          shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
+          productImages: [],
         },
       ]);
       setLoading(false);

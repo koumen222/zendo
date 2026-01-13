@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import CODForm from '../components/CODForm';
 
 function ProductPage() {
@@ -33,110 +32,26 @@ function ProductPage() {
   };
 
   useEffect(() => {
-    const fetchProductData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`/api/products/${slug}`);
-        if (response.data.success && response.data.product) {
-          const product = response.data.product;
-          setProductData({
-            name: product.productName,
-            price: product.productPrice,
-            images: product.productImages || [],
-            description: product.productFullDesc || product.productShortDesc || '',
-            shortDesc: product.productShortDesc || '',
-            benefits: product.productBenefits || [],
-            usage: product.productUsage || '',
-            guarantee: product.productGuarantee || '',
-            deliveryInfo: product.productDeliveryInfo || '',
-            reviews: product.productReviews || [],
-            stock: product.stock || 'En stock',
-            rating: product.rating || 4.8,
-            reviewCount: product.reviewCount || 252,
-            sections: product.sections || [],
-            faq: product.faq || [],
-            whyItWorks: product.whyItWorks || null,
-          });
-        } else {
-          throw new Error('Produit non trouvé');
-        }
-      } catch (error) {
-        console.error('Error fetching product:', error);
-        if (slug === 'serum-correcteur-de-teinte-pour-les-dents-effet-instantane-sans-peroxyde-sourire-plus-net') {
-          setProductData({
-            name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
-            price: 'Prix sur demande',
-            images: [],
-            description: '',
-            shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
-            benefits: [],
-            usage: '',
-            deliveryInfo: '',
-            reviews: [],
-            stock: '835 en stock',
-            rating: 4.8,
-            reviewCount: 252,
-            sections: [
-              {
-                title: 'Un jaune qui gâche tes photos ?',
-                content: 'Ce sérum violet neutralise visuellement les tons jaunes en quelques minutes. Tu poses, tu essuies, et ton sourire paraît plus frais tout de suite. Idéal avant une sortie, un live ou une visio.',
-              },
-              {
-                title: 'Pas de produits agressifs, pas de stress.',
-                content: 'Formule sans peroxyde, pensée pour une utilisation cosmétique douce. Le but : corriger la teinte, pas décaper.',
-              },
-              {
-                title: 'Simple comme bonjour.',
-                content: 'Pas besoin d\'appareil ni de lampe. Applique une fine couche, brosse-toi les dents normalement, puis rince la bouche. C\'est rapide, propre et efficace.',
-              },
-              {
-                title: 'Parfait quand l\'emploi du temps est serré.',
-                content: 'Tu es en route pour un rendez-vous ? Deux minutes et c\'est réglé. Tu peux l\'utiliser à la maison, au bureau ou entre deux activités.',
-              },
-            ],
-            whyItWorks: {
-              title: 'Pourquoi ça fonctionne (en vrai)',
-              subtitle: 'La correction de couleur, pas du "blanchiment".',
-              content: 'Le sérum utilise des pigments violets. Sur le cercle chromatique, violet et jaune sont opposés : quand ils se rencontrent, ils se neutralisent visuellement. Résultat : les tons jaunes paraissent moins visibles à l\'œil.',
-            },
-            faq: [
-              {
-                question: 'Est-ce que c\'est facile à utiliser ?',
-                answer: 'Oui. Tu appliques sur dents propres et sèches, tu attends un court instant, tu essuies. C\'est rapide et intuitif.',
-              },
-              {
-                question: 'Et si je n\'ai pas toujours de courant ?',
-                answer: 'Aucun problème : pas d\'UV/LED, pas d\'appareil. Juste le sérum et un mouchoir/coton pour essuyer.',
-              },
-              {
-                question: 'C\'est sûr pour les dents ?',
-                answer: 'C\'est une correction de couleur sans peroxyde, généralement bien tolérée. Si tu as des facettes, couronnes, appareils ou une sensibilité, valide avec ton dentiste avant usage.',
-              },
-              {
-                question: 'Livraison où ?',
-                answer: 'Dans plusieurs pays d\'Afrique, généralement 2 à 7 jours selon ta ville. Paiement à la livraison possible selon zones.',
-              },
-            ],
-            guarantee: 'Il est recommandé par les dentistes du Cameroun et du monde entier.',
-          });
-        } else {
-          setProductData({
-            name: `Produit ${slug}`,
-            price: '29,900 FCFA',
-            images: [],
-            description: 'Description du produit',
-            benefits: [],
-            stock: 'En stock',
-            rating: 4.5,
-            reviewCount: 0,
-          });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProductData();
+    // Données hardcodées pour Hismile uniquement
+    setProductData({
+      name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
+      price: 'Prix sur demande',
+      images: [],
+      description: '',
+      shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
+      benefits: [],
+      usage: '',
+      deliveryInfo: '',
+      reviews: [],
+      stock: 'En stock',
+      rating: 4.8,
+      reviewCount: 252,
+      sections: [],
+      faq: [],
+      whyItWorks: null,
+      guarantee: 'Il est recommandé par les dentistes du Cameroun et du monde entier.',
+    });
+    setLoading(false);
   }, [slug]);
 
   if (loading) {
@@ -179,8 +94,17 @@ function ProductPage() {
               }}
             />
             <span className="font-semibold text-sm md:text-base">
-              Disponible partout au Cameroun 🇨🇲
+              Disponible partout au Cameroun
             </span>
+            <img
+              src="https://flagcdn.com/w160/cm.png"
+              alt="Cameroun"
+              className="w-8 h-6 object-cover rounded"
+              onError={(e) => {
+                // Fallback si l'image ne charge pas
+                e.target.style.display = 'none';
+              }}
+            />
           </div>
         </div>
       </section>

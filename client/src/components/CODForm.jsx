@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from 'axios';
 
 function CODForm({ productSlug }) {
   const [quantity, setQuantity] = useState(1);
@@ -38,17 +39,31 @@ function CODForm({ productSlug }) {
     setError(null);
     setSuccess(false);
 
-    // Simulation de la commande (backend désactivé pour le moment)
-    setTimeout(() => {
-      setSuccess(true);
-      setQuantity(1);
-      setFormData({
-        name: '',
-        phone: '',
-        city: '',
+    try {
+      const response = await axios.post('/api/orders', {
+        ...formData,
+        productSlug,
+        quantity,
       });
+
+      if (response.data.success) {
+        setSuccess(true);
+        setQuantity(1);
+        setFormData({
+          name: '',
+          phone: '',
+          city: '',
+        });
+        // Le message WhatsApp est envoyé automatiquement par le backend
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          'Erreur lors de la création de la commande. Veuillez réessayer.'
+      );
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   if (success) {

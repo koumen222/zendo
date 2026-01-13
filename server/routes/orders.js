@@ -1,12 +1,12 @@
 import express from 'express';
 import Order from '../models/Order.js';
-import { scrapeProduct } from '../utils/scraper.js';
+import { sendTelegramNotification } from '../utils/telegram.js';
 
 const router = express.Router();
 
 /**
  * POST /api/orders
- * Create a new COD order with product scraping
+ * Create a new COD order for Hismile product
  */
 router.post('/', async (req, res) => {
   try {
@@ -20,26 +20,19 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Scrape product data
-    let productData = {};
-    try {
-      productData = await scrapeProduct(productSlug);
-    } catch (scrapeError) {
-      console.error('Scraping error:', scrapeError);
-      // Continue with order creation even if scraping fails
-      productData = {
-        productName: `Produit ${productSlug}`,
-        productPrice: 'Prix non disponible',
-        productImages: [],
-        productShortDesc: '',
-        productFullDesc: '',
-        productBenefits: [],
-        productUsage: '',
-        productGuarantee: '',
-        productDeliveryInfo: '',
-        productReviews: [],
-      };
-    }
+    // Product data for Hismile (hardcoded)
+    const productData = {
+      productName: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
+      productPrice: quantity === 1 ? '9,900 FCFA' : '14,000 FCFA',
+      productImages: [],
+      productShortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
+      productFullDesc: '',
+      productBenefits: [],
+      productUsage: '',
+      productGuarantee: 'Il est recommandé par les dentistes du Cameroun et du monde entier.',
+      productDeliveryInfo: '',
+      productReviews: [],
+    };
 
     // Calculer le prix total
     let totalPrice = '';
@@ -63,8 +56,33 @@ router.post('/', async (req, res) => {
       ...productData,
     });
 
+    console.log('\n');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('💾 SAUVEGARDE COMMANDE');
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('📋 Commande à sauvegarder:', {
+      name: order.name,
+      phone: order.phone,
+      city: order.city,
+      productName: order.productName,
+      quantity: order.quantity,
+      totalPrice: order.totalPrice,
+    });
+    
     await order.save();
+    console.log('✅ Commande sauvegardée avec succès dans MongoDB');
+    console.log('🆔 ID de la commande:', order._id);
 
+    // Préparer les données de notification pour Telegram (en arrière-plan)
+    const notificationData = {
+      name: order.name,
+      phone: order.phone,
+      product: order.productName,
+      price: totalPrice,
+      city: order.city,
+    };
+
+    // ENVOYER LA RÉPONSE IMMÉDIATEMENT (avant Telegram)
     res.status(201).json({
       success: true,
       message: 'Commande créée avec succès',
@@ -76,6 +94,24 @@ router.post('/', async (req, res) => {
         productName: order.productName,
         createdAt: order.createdAt,
       },
+    });
+
+    // Envoyer Telegram en arrière-plan APRÈS l'envoi de la réponse
+    // Utilisation de process.nextTick pour garantir que la réponse est partie en premier
+    process.nextTick(async () => {
+      const TG_CHAT_IDS = process.env.TG_CHAT_IDS ? process.env.TG_CHAT_IDS.split(',').map(id => id.trim()).filter(id => id) : [];
+      
+      try {
+        console.log('📱 Envoi Telegram en arrière-plan (après réponse HTTP)...');
+        const telegramResult = await sendTelegramNotification(notificationData);
+        if (telegramResult.success) {
+          console.log(`✅ Telegram envoyé: ${telegramResult.successCount}/${TG_CHAT_IDS.length} destinataire(s)`);
+        } else {
+          console.log(`⚠️  Telegram échoué: ${telegramResult.failCount} échec(s)`);
+        }
+      } catch (telegramError) {
+        console.error('❌ Erreur Telegram en arrière-plan:', telegramError.message);
+      }
     });
   } catch (error) {
     console.error('Order creation error:', error);

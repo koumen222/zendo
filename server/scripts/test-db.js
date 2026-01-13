@@ -13,10 +13,7 @@ async function testDatabase() {
 
     // Connect to MongoDB
     const mongoURI = process.env.MONGO_URI || 'mongodb://localhost:27017/zendo';
-    await mongoose.connect(mongoURI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(mongoURI);
 
     console.log('✅ MongoDB Connected successfully!');
     console.log(`📊 Database: ${mongoose.connection.name}`);

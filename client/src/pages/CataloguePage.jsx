@@ -9,76 +9,15 @@ function CataloguePage() {
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
-    // Simuler le chargement de produits
-    // En production, vous pourriez avoir une API pour récupérer les produits
+    // Produit Hismile uniquement
     setTimeout(() => {
       const mockProducts = [
-        {
-          slug: 'serum-visage-vitamine-c',
-          name: 'Sérum Visage Vitamine C',
-          price: '29,900 FCFA',
-          shortDesc: 'Éclat et luminosité pour votre peau. Formule enrichie en vitamine C naturelle.',
-          productImages: [],
-        },
-        {
-          slug: 'huile-argan-pure',
-          name: 'Huile d\'Argan Pure',
-          price: '19,900 FCFA',
-          shortDesc: 'Hydratation intense pour le visage, le corps et les cheveux. 100% naturelle.',
-          productImages: [],
-        },
-        {
-          slug: 'masque-detox-argile',
-          name: 'Masque Détox à l\'Argile',
-          price: '14,900 FCFA',
-          shortDesc: 'Purifie et nettoie en profondeur. Parfait pour les peaux mixtes à grasses.',
-          productImages: [],
-        },
-        {
-          slug: 'creme-hydratante-anti-age',
-          name: 'Crème Hydratante Anti-âge',
-          price: '34,900 FCFA',
-          shortDesc: 'Ride et fermeté. Formule anti-âge enrichie en collagène et acide hyaluronique.',
-          productImages: [],
-        },
-        {
-          slug: 'huile-coco-cheveux',
-          name: 'Huile de Coco pour Cheveux',
-          price: '12,900 FCFA',
-          shortDesc: 'Nourrit et répare les cheveux abîmés. Brillance et douceur garanties.',
-          productImages: [],
-        },
-        {
-          slug: 'gel-douche-naturel',
-          name: 'Gel Douche Naturel',
-          price: '8,900 FCFA',
-          shortDesc: 'Nettoyage doux au parfum naturel. Respecte l\'équilibre de votre peau.',
-          productImages: [],
-        },
-        {
-          slug: 'complement-vitamines',
-          name: 'Complément Vitamines & Minéraux',
-          price: '24,900 FCFA',
-          shortDesc: 'Boostez votre système immunitaire avec ce complexe vitaminique complet.',
-          productImages: [],
-        },
-        {
-          slug: 'baume-levres-nourrissant',
-          name: 'Baume à Lèvres Nourrissant',
-          price: '4,900 FCFA',
-          shortDesc: 'Hydratation intense et protection. Parfait pour les lèvres sèches et gercées.',
-          productImages: [],
-        },
         {
           slug: 'serum-correcteur-de-teinte-pour-les-dents-effet-instantane-sans-peroxyde-sourire-plus-net',
           name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
           price: 'Prix sur demande',
-          shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde. Sourire plus net en quelques minutes.',
-          productImages: [
-            'https://zendo.site/cdn/shop/files/hismile-serum-dents-1.jpg',
-            'https://zendo.site/cdn/shop/files/hismile-serum-dents-2.jpg',
-            'https://zendo.site/cdn/shop/files/hismile-serum-dents-3.jpg',
-          ],
+          shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
+          productImages: [],
         },
       ];
       setProducts(mockProducts);
