@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import CODForm from '../components/CODForm';
-import VimeoPlayer from '../components/VimeoPlayer';
 
 function ProductPage() {
   const { slug } = useParams();
@@ -74,7 +73,6 @@ function ProductPage() {
             shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
             benefits: [],
             usage: '',
-            guarantee: '',
             deliveryInfo: '',
             reviews: [],
             stock: '835 en stock',
@@ -189,13 +187,20 @@ function ProductPage() {
         </div>
       </section>
 
-      {/* Video - Collée au header */}
+      {/* Image - Collée au header */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <VimeoPlayer
-            videoId="1153995444"
-            className="w-full"
-            autoplay={true}
-            loop={true}
+          <img
+            src="/ChatGPT Image 13 janv. 2026, 17_11_57.png"
+            alt={productData?.name || 'Produit Zendo'}
+            className="w-full h-auto object-cover"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              aspectRatio: '1080/1150',
+              objectFit: 'cover',
+              margin: '0 auto',
+              display: 'block',
+            }}
           />
           {/* Badge */}
           {productData?.stock && (
