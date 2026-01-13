@@ -10,13 +10,13 @@ const router = express.Router();
  */
 router.post('/', async (req, res) => {
   try {
-    const { name, phone, city, address, productSlug, quantity = 1 } = req.body;
+    const { name, phone, city, address = '', productSlug, quantity = 1 } = req.body;
 
     // Validation
-    if (!name || !phone || !city || !address || !productSlug) {
+    if (!name || !phone || !city || !productSlug) {
       return res.status(400).json({
         success: false,
-        message: 'Tous les champs sont requis (name, phone, city, address, productSlug)',
+        message: 'Tous les champs sont requis (name, phone, city, productSlug)',
       });
     }
 

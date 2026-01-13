@@ -19,8 +19,9 @@ const orderSchema = new mongoose.Schema(
     },
     address: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
+      default: '',
     },
     productSlug: {
       type: String,

@@ -7,7 +7,6 @@ function CODForm({ productSlug }) {
     name: '',
     phone: '',
     city: '',
-    address: '',
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -54,7 +53,6 @@ function CODForm({ productSlug }) {
           name: '',
           phone: '',
           city: '',
-          address: '',
         });
       }
     } catch (err) {
@@ -89,70 +87,55 @@ function CODForm({ productSlug }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
           {error}
         </div>
       )}
 
+      {/* Titre du formulaire */}
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-bold text-gray-900">
+          Remplissez ce formulaire pour commander
+        </h3>
+      </div>
+
       {/* Sélection de la quantité */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-lg font-bold text-gray-900 mb-4 text-center">
           Choisissez votre offre
         </label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-3">
           {/* Offre 1 */}
-          <button
-            type="button"
-            onClick={() => setQuantity(1)}
-            className={`p-4 rounded-lg border-2 transition-all ${
-              quantity === 1
-                ? 'border-primary-600 bg-primary-50'
-                : 'border-gray-200 hover:border-primary-300'
-            }`}
-          >
-            <div className="text-center">
-              <div className="text-lg font-bold text-gray-900 mb-1">1 produit</div>
-              <div className="text-2xl font-bold text-primary-600">9,900 FCFA</div>
-              <div className="text-xs text-gray-500 mt-1">9,900 FCFA/unité</div>
-            </div>
-          </button>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="quantity"
+              value="1"
+              checked={quantity === 1}
+              onChange={(e) => setQuantity(parseInt(e.target.value))}
+              className="w-5 h-5 text-primary-600"
+            />
+            <span className="text-gray-900">1 Produit - 9,900 FCFA</span>
+          </label>
 
           {/* Offre 2 */}
-          <button
-            type="button"
-            onClick={() => setQuantity(2)}
-            className={`p-4 rounded-lg border-2 transition-all relative ${
-              quantity === 2
-                ? 'border-primary-600 bg-primary-50'
-                : 'border-gray-200 hover:border-primary-300'
-            }`}
-          >
-            <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              ÉCONOMIE
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-gray-900 mb-1">2 produits</div>
-              <div className="text-2xl font-bold text-primary-600">14,000 FCFA</div>
-              <div className="text-xs text-gray-500 mt-1">7,000 FCFA/unité</div>
-              <div className="text-xs text-green-600 font-semibold mt-1">
-                Économisez 4,800 FCFA
-              </div>
-            </div>
-          </button>
-        </div>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Prix total : <span className="font-bold text-lg text-primary-600">{getPrice()}</span>
-          </p>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="radio"
+              name="quantity"
+              value="2"
+              checked={quantity === 2}
+              onChange={(e) => setQuantity(parseInt(e.target.value))}
+              className="w-5 h-5 text-primary-600"
+            />
+            <span className="text-gray-900">2 Produits - 14,000 FCFA</span>
+          </label>
         </div>
       </div>
 
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-          Nom complet *
-        </label>
         <input
           type="text"
           id="name"
@@ -160,31 +143,12 @@ function CODForm({ productSlug }) {
           value={formData.name}
           onChange={handleChange}
           required
-          className="input-field"
-          placeholder="Votre nom complet"
+          className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          placeholder="Nom"
         />
       </div>
 
       <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-          Téléphone *
-        </label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          required
-          className="input-field"
-          placeholder="+225 XX XX XX XX XX"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-2">
-          Ville *
-        </label>
         <input
           type="text"
           id="city"
@@ -192,38 +156,35 @@ function CODForm({ productSlug }) {
           value={formData.city}
           onChange={handleChange}
           required
-          className="input-field"
-          placeholder="Votre ville"
+          className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          placeholder="Ville"
         />
       </div>
 
       <div>
-        <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
-          Adresse complète *
-        </label>
-        <textarea
-          id="address"
-          name="address"
-          value={formData.address}
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          value={formData.phone}
           onChange={handleChange}
           required
-          rows="3"
-          className="input-field resize-none"
-          placeholder="Votre adresse complète de livraison"
+          className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          placeholder="Téléphone"
         />
       </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-primary-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-primary-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+        className="w-full text-white px-8 py-4 rounded-lg font-bold text-lg hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+        style={{ 
+          backgroundColor: '#6B21A8',
+          boxShadow: '0 10px 25px rgba(107, 33, 168, 0.4)'
+        }}
       >
-        {loading ? 'Traitement...' : 'Ajouter au panier'}
+        {loading ? 'Traitement...' : 'Commandez maintenant'}
       </button>
-
-      <p className="text-xs text-gray-500 text-center mt-3">
-        Paiement à la livraison (COD) disponible
-      </p>
     </form>
   );
 }
