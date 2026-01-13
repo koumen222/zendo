@@ -96,22 +96,26 @@ router.post('/', async (req, res) => {
       },
     });
 
-    // Envoyer Telegram en arrière-plan APRÈS l'envoi de la réponse
-    // Utilisation de process.nextTick pour garantir que la réponse est partie en premier
-    process.nextTick(async () => {
-      const TG_CHAT_IDS = process.env.TG_CHAT_IDS ? process.env.TG_CHAT_IDS.split(',').map(id => id.trim()).filter(id => id) : [];
-      
-      try {
-        console.log('📱 Envoi Telegram en arrière-plan (après réponse HTTP)...');
-        const telegramResult = await sendTelegramNotification(notificationData);
-        if (telegramResult.success) {
-          console.log(`✅ Telegram envoyé: ${telegramResult.successCount}/${TG_CHAT_IDS.length} destinataire(s)`);
-        } else {
-          console.log(`⚠️  Telegram échoué: ${telegramResult.failCount} échec(s)`);
-        }
-      } catch (telegramError) {
-        console.error('❌ Erreur Telegram en arrière-plan:', telegramError.message);
-      }
+    // Envoyer Telegram en arrière-plan SANS attendre la réponse
+    // La réponse HTTP est déjà envoyée, on ne bloque plus rien
+    process.nextTick(() => {
+      console.log('📱 Envoi Telegram en arrière-plan (non-bloquant)...');
+      // Envoyer sans await - la promesse se résout en arrière-plan
+      sendTelegramNotification(notificationData)
+        .then((telegramResult) => {
+          if (telegramResult.success) {
+            console.log(`✅ Telegram envoyé: ${telegramResult.successCount}/${telegramResult.failCount + telegramResult.successCount} destinataire(s)`);
+          } else {
+            // Ne pas logger les erreurs de timeout, c'est normal en arrière-plan
+            if (telegramResult.error && !telegramResult.error.includes('Timeout')) {
+              console.log(`⚠️  Telegram: ${telegramResult.failCount} échec(s)`);
+            }
+          }
+        })
+        .catch((telegramError) => {
+          // Ignorer silencieusement les erreurs en arrière-plan
+          // Les logs détaillés sont déjà dans sendTelegramNotification
+        });
     });
   } catch (error) {
     console.error('Order creation error:', error);

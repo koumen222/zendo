@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getFirstWord } from '../utils/format';
 
 function ProductCard({ product }) {
   const imageUrl =
@@ -30,14 +31,9 @@ function ProductCard({ product }) {
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
-          {product.name}
+        <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-primary-600 transition-colors">
+          {getFirstWord(product.name)}
         </h3>
-        {product.shortDesc && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-            {product.shortDesc}
-          </p>
-        )}
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-primary-600">
             {product.price || 'Prix sur demande'}

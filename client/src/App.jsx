@@ -1,4 +1,5 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import ProductPage from './pages/ProductPage';
 import AdminOrdersPage from './pages/AdminOrdersPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -9,11 +10,19 @@ import HomePage from './pages/HomePage';
 import CataloguePage from './pages/CataloguePage';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { trackVisit } from './utils/analytics';
 
 function App() {
   const location = useLocation();
   const isAdminPage = location.pathname.startsWith('/admin');
   const isProductPage = location.pathname.startsWith('/produit');
+
+  // Track page visits (only for public pages, not admin)
+  useEffect(() => {
+    if (!isAdminPage) {
+      trackVisit(location.pathname);
+    }
+  }, [location.pathname, isAdminPage]);
 
   return (
     <div className="flex flex-col min-h-screen">

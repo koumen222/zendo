@@ -1,10 +1,15 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 
-dotenv.config();
+// Les variables d'environnement sont déjà chargées par server/index.js
+// Mais on les lit au moment de l'utilisation, pas au moment de l'import
 
 const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
-const TG_TOKEN = process.env.TG_TOKEN;
+
+// Fonction pour obtenir les variables d'environnement (lue à l'exécution, pas à l'import)
+const getEnvVars = () => ({
+  TG_TOKEN: process.env.TG_TOKEN,
+  TG_CHAT_IDS_RAW: process.env.TG_CHAT_IDS || process.env.TG_CHAT_ID || '',
+});
 // Support pour plusieurs chat IDs (séparés par des virgules)
 // Utilise TG_CHAT_IDS ou TG_CHAT_ID (pour compatibilité)
 const TG_CHAT_IDS_RAW = process.env.TG_CHAT_IDS || process.env.TG_CHAT_ID || '';
@@ -23,13 +28,19 @@ const TG_CHAT_IDS = TG_CHAT_IDS_RAW ? TG_CHAT_IDS_RAW.split(',').map(id => id.tr
 export async function sendTelegramNotification(orderData) {
   const startTime = Date.now();
   
+  // Lire les variables d'environnement au moment de l'exécution
+  const { TG_TOKEN, TG_CHAT_IDS_RAW } = getEnvVars();
+  const TG_CHAT_IDS = TG_CHAT_IDS_RAW ? TG_CHAT_IDS_RAW.split(',').map(id => id.trim()).filter(id => id) : [];
+  
   try {
     // Validation rapide des variables d'environnement
     if (!TG_TOKEN) {
+      console.error('❌ TG_TOKEN non défini. Variables disponibles:', Object.keys(process.env).filter(k => k.includes('TG')));
       throw new Error('TG_TOKEN non défini dans .env');
     }
     
     if (!TG_CHAT_IDS || TG_CHAT_IDS.length === 0) {
+      console.error('❌ TG_CHAT_IDS non défini. Valeur brute:', TG_CHAT_IDS_RAW);
       throw new Error('TG_CHAT_IDS non défini dans .env');
     }
 
@@ -56,9 +67,9 @@ export async function sendTelegramNotification(orderData) {
           parse_mode: 'HTML',
         };
 
-        // Envoi de la requête avec timeout court pour rapidité (< 1s total)
+        // Envoi de la requête avec timeout court car c'est en arrière-plan
         const response = await axios.post(url, payload, {
-          timeout: 800, // Timeout de 800ms par requête pour garantir < 1s total
+          timeout: 5000, // Timeout de 5 secondes - suffisant pour un envoi en arrière-plan
         });
 
         return {
@@ -87,24 +98,25 @@ export async function sendTelegramNotification(orderData) {
       }
     });
 
-    // Attendre que toutes les requêtes se terminent en parallèle avec timeout global de 1 seconde max
+    // Attendre que toutes les requêtes se terminent en parallèle avec timeout global de 8 secondes max
+    // Plus court car c'est en arrière-plan et on ne veut pas bloquer
     const resultsPromise = Promise.all(sendPromises);
     const timeoutPromise = new Promise((resolve) => {
-      setTimeout(() => resolve([]), 1000);
+      setTimeout(() => resolve([]), 8000);
     });
     
-    // Race entre les résultats et le timeout de 1 seconde
+    // Race entre les résultats et le timeout de 8 secondes
     const results = await Promise.race([resultsPromise, timeoutPromise]);
     
     // Si timeout, les requêtes continuent en arrière-plan mais on retourne immédiatement
     if (results.length === 0) {
-      // Timeout atteint, retourner timeout pour les résultats non disponibles
+      // Timeout atteint - c'est OK, les requêtes continuent en arrière-plan
       return {
         success: false,
         successCount: 0,
         failCount: TG_CHAT_IDS.length,
-        totalDuration: 1000,
-        results: TG_CHAT_IDS.map(chatId => ({ success: false, chatId, error: 'Timeout > 1s' })),
+        totalDuration: 8000,
+        results: TG_CHAT_IDS.map(chatId => ({ success: false, chatId, error: 'Timeout > 8s (en arrière-plan)' })),
       };
     }
 
@@ -113,12 +125,11 @@ export async function sendTelegramNotification(orderData) {
     const successCount = results.filter(r => r && r.success).length;
     const failCount = results.filter(r => !r || !r.success).length;
 
-    // Logs simplifiés pour performance
-    if (totalDuration > 1000) {
-      console.warn(`⚠️  Telegram: ${totalDuration}ms (> 1s)`);
-    } else {
+    // Logs simplifiés - ne pas logger les timeouts car c'est normal en arrière-plan
+    if (totalDuration <= 5000 && successCount > 0) {
       console.log(`✅ Telegram: ${successCount}/${TG_CHAT_IDS.length} envoyé(s) en ${totalDuration}ms`);
     }
+    // Ne pas logger les warnings de timeout - c'est attendu en arrière-plan
     
     if (failCount > 0) {
       results.forEach((result) => {

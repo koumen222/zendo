@@ -12,7 +12,7 @@ function HomePage() {
     setTimeout(() => {
       setFeaturedProducts([
         {
-          slug: 'serum-correcteur-de-teinte-pour-les-dents-effet-instantane-sans-peroxyde-sourire-plus-net',
+          slug: 'hismile',
           name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
           price: 'Prix sur demande',
           shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',

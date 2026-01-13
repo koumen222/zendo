@@ -1,7 +1,6 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 
-dotenv.config();
+// Les variables d'environnement sont déjà chargées par server/index.js
 
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v18.0';
 const ACCESS_TOKEN = process.env.WHATSAPP_ACCESS_TOKEN;
