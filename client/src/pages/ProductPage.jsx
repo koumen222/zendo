@@ -187,17 +187,17 @@ function ProductPage() {
         </div>
       </section>
 
-      {/* Image - Collée au header */}
+      {/* Images - Collées au header */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
           <img
             src="/ChatGPT Image 13 janv. 2026, 17_11_57.png"
             alt={productData?.name || 'Produit Zendo'}
-            className="w-full h-auto object-cover"
+            className="w-full h-auto object-top"
             style={{
               width: '100%',
               maxWidth: '1080px',
-              aspectRatio: '1080/1150',
               objectFit: 'cover',
+              objectPosition: 'top',
               margin: '0 auto',
               display: 'block',
             }}
@@ -208,6 +208,40 @@ function ProductPage() {
               {productData.stock}
             </div>
           )}
+      </div>
+      
+      {/* Deuxième image */}
+      <div className="relative w-full max-w-4xl mx-auto bg-white">
+          <img
+            src="/images/ChatGPT Image 13 janv. 2026, 17_25_05.png"
+            alt={productData?.name || 'Produit Zendo'}
+            className="w-full h-auto object-top"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              objectFit: 'cover',
+              objectPosition: 'top',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
+      </div>
+      
+      {/* Troisième image */}
+      <div className="relative w-full max-w-4xl mx-auto bg-white">
+          <img
+            src="/images/bf.png"
+            alt={productData?.name || 'Produit Zendo'}
+            className="w-full h-auto object-top"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              objectFit: 'cover',
+              objectPosition: 'top',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
       </div>
 
       {/* Hero Section - Landing Page Style */}
