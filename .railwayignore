@@ -1,5 +1,7 @@
 client/
 client/**
+package.json
+!server/package.json
 node_modules/
 .env
 *.log
