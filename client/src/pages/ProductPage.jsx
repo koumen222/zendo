@@ -230,6 +230,23 @@ function ProductPage() {
       {/* Troisième image */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
           <img
+            src="/images/ChatGPT Image 13 janv. 2026, 17_38_17.png"
+            alt={productData?.name || 'Produit Zendo'}
+            className="w-full h-auto object-top"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              objectFit: 'cover',
+              objectPosition: 'top',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
+      </div>
+      
+      {/* Quatrième image */}
+      <div className="relative w-full max-w-4xl mx-auto bg-white">
+          <img
             src="/images/bf.png"
             alt={productData?.name || 'Produit Zendo'}
             className="w-full h-auto object-top"
@@ -592,6 +609,23 @@ function ProductPage() {
           </button>
         </div>
       </section>
+
+      {/* Image en bas */}
+      <div className="relative w-full max-w-4xl mx-auto bg-white">
+          <img
+            src="/images/ChatGPT Image 13 janv. 2026, 17_36_08.png"
+            alt="Avantages Zendo"
+            className="w-full h-auto object-top"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              objectFit: 'cover',
+              objectPosition: 'top',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
+      </div>
     </div>
   );
 }
