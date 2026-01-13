@@ -2,6 +2,8 @@
 
 Ce guide vous explique comment déployer **uniquement le backend** sur Railway.
 
+**📌 Note importante :** Ce guide utilise la branche **`backend`** qui contient uniquement le code backend, séparé du frontend.
+
 ## 📋 Prérequis
 
 - ✅ Compte GitHub avec votre code
@@ -29,6 +31,7 @@ git push origin main
 3. Sélectionnez **"Deploy from GitHub repo"**
 4. Autorisez Railway à accéder à votre GitHub
 5. Sélectionnez votre repository `zendo`
+6. **IMPORTANT :** Sélectionnez la branche **`backend`** (pas `main`)
 
 ### 3️⃣ Configurer le service backend
 
