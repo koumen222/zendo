@@ -41,9 +41,9 @@ git push origin main
 2. Cliquez sur le service pour l'ouvrir
 3. Allez dans **Settings** (⚙️)
 4. Dans la section **Source**, trouvez **Root Directory**
-5. Définissez : `server`
-6. **Start Command** : `  ` (déjà configuré)
-7. **Build Command** : Laissez vide
+5. Définissez : `server` ⚠️ **CRUCIAL - Railway doit utiliser ce dossier**
+6. **Start Command** : `npm start` (déjà configuré dans `server/package.json`)
+7. **Build Command** : Laissez **VIDE** ou supprimez complètement (pas de build nécessaire)
 
 **Alternative :** Si Railway ne détecte pas automatiquement :
 - Créer un nouveau service
