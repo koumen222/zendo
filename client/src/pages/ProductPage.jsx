@@ -293,6 +293,23 @@ function ProductPage() {
           />
       </div>
 
+      {/* Image recommandation experte */}
+      <div className="relative w-full max-w-4xl mx-auto bg-white">
+          <img
+            src="/images/681a01b9-c2cd-4eba-84b0-3a81622c0afc.png"
+            alt="Recommandation experte dentaire"
+            className="w-full h-auto object-top"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              objectFit: 'cover',
+              objectPosition: 'top',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
+      </div>
+
       {/* CTA Section - Order Form */}
       <section id="order" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
