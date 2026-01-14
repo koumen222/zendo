@@ -280,64 +280,65 @@ function AdminOrdersPage() {
 
                 {/* Status Filter */}
                 <div className="flex gap-2 flex-wrap">
-            <button
-                  onClick={() => handleStatusChange('all')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === 'all'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Toutes
-            </button>
-            <button
-                  onClick={() => handleStatusChange('new')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === 'new'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Nouvelles
-            </button>
-            <button
-                  onClick={() => handleStatusChange('pending,called')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === 'pending,called'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  À traiter
-            </button>
-            <button
-                  onClick={() => handleStatusChange('delivered')}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    statusFilter === 'delivered'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Livrées
-            </button>
-          </div>
-        </div>
-
-            {/* Bulk Actions */}
-            {selectedOrders.size > 0 && (
-              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <div className="text-sm text-gray-700">
-                  <strong>{selectedOrders.size}</strong> commande(s) sélectionnée(s)
+                  <button
+                    onClick={() => handleStatusChange('all')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === 'all'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Toutes
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('new')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === 'new'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Nouvelles
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('pending,called')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === 'pending,called'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    À traiter
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange('delivered')}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      statusFilter === 'delivered'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Livrées
+                  </button>
                 </div>
-                <button
-                  onClick={handleBulkDelete}
-                  disabled={deletingBulk}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                >
-                  {deletingBulk ? 'Suppression...' : `Supprimer ${selectedOrders.size} commande(s)`}
-                </button>
               </div>
-            )}
+
+              {/* Bulk Actions */}
+              {selectedOrders.size > 0 && (
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-700">
+                    <strong>{selectedOrders.size}</strong> commande(s) sélectionnée(s)
+                  </div>
+                  <button
+                    onClick={handleBulkDelete}
+                    disabled={deletingBulk}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                  >
+                    {deletingBulk ? 'Suppression...' : `Supprimer ${selectedOrders.size} commande(s)`}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Orders List */}
