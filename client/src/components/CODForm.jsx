@@ -1,9 +1,5 @@
 import { useState } from 'react';
-<<<<<<< HEAD
-import { api } from '../utils/api';
-=======
 import api from '../api';
->>>>>>> f4a301a (feat: connect frontend to Railway API + Meta Pixel)
 
 function CODForm({ productSlug }) {
   const [quantity, setQuantity] = useState(1);
@@ -30,6 +26,29 @@ function CODForm({ productSlug }) {
   };
 
   const handleChange = (e) => {
+    // Meta Pixel - InitiateCheckout quand l'utilisateur commence à remplir le formulaire
+    if (!formData.name && !formData.phone && !formData.city && e.target.value) {
+      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+        let checkoutValue = 0;
+        if (quantity === 1) {
+          checkoutValue = 9900;
+        } else if (quantity === 2) {
+          checkoutValue = 14000;
+        } else {
+          checkoutValue = quantity * 9900;
+        }
+
+        window.fbq('track', 'InitiateCheckout', {
+          content_ids: [productSlug],
+          content_type: 'product',
+          content_name: 'Hismile - Sérum blanchissant dents',
+          value: checkoutValue,
+          currency: 'XAF',
+          num_items: quantity,
+        });
+      }
+    }
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -51,12 +70,33 @@ function CODForm({ productSlug }) {
       });
 
       if (response.data.success) {
-        // Meta Pixel - Purchase après succès de la commande
+        // Calculer la valeur réelle en XAF pour Meta Pixel
+        let purchaseValue = 0;
+        if (quantity === 1) {
+          purchaseValue = 9900;
+        } else if (quantity === 2) {
+          purchaseValue = 14000;
+        } else {
+          purchaseValue = quantity * 9900;
+        }
+
+        // Meta Pixel - Purchase et Lead après succès de la commande
         if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+          // Événement Purchase pour le tracking de conversion
           window.fbq('track', 'Purchase', {
             content_ids: [productSlug],
             content_type: 'product',
-            value: quantity, // ici on peut utiliser la quantité comme valeur indicative
+            content_name: 'Hismile - Sérum blanchissant dents',
+            value: purchaseValue,
+            currency: 'XAF',
+            num_items: quantity,
+          });
+
+          // Événement Lead pour le tracking de leads
+          window.fbq('track', 'Lead', {
+            content_name: 'Hismile - Sérum blanchissant dents',
+            content_category: 'Beauty & Health',
+            value: purchaseValue,
             currency: 'XAF',
           });
         }
@@ -211,13 +251,25 @@ function CODForm({ productSlug }) {
           boxShadow: '0 10px 25px rgba(107, 33, 168, 0.4)'
         }}
         onClick={() => {
+          // Calculer la valeur réelle en XAF pour Meta Pixel
+          let cartValue = 0;
+          if (quantity === 1) {
+            cartValue = 9900;
+          } else if (quantity === 2) {
+            cartValue = 14000;
+          } else {
+            cartValue = quantity * 9900;
+          }
+
           // Meta Pixel - AddToCart lors du clic sur le bouton Commander
           if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
             window.fbq('track', 'AddToCart', {
               content_ids: [productSlug],
               content_type: 'product',
-              value: quantity,
+              content_name: 'Hismile - Sérum blanchissant dents',
+              value: cartValue,
               currency: 'XAF',
+              quantity: quantity,
             });
           }
         }}

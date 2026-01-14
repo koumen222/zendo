@@ -26,7 +26,41 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const app = express();
-app.use(cors());
+
+// CORS configuration - Allow requests from frontend origin
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      'https://b12068c0.zendof.pages.dev',
+      'https://zendof.pages.dev',
+      'http://localhost:3000',
+      'http://localhost:5173',
+    ];
+    
+    // Check if origin is in the allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Check if origin matches Cloudflare Pages pattern (any subdomain of zendof.pages.dev)
+    if (/^https:\/\/[a-zA-Z0-9-]+\.zendof\.pages\.dev$/.test(origin)) {
+      return callback(null, true);
+    }
+    
+    // Origin not allowed
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 import orderRoutes from "./routes/orders.js";
