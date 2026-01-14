@@ -17,6 +17,9 @@ function AdminOrdersPage() {
   });
   const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [deletingOrder, setDeletingOrder] = useState(null);
 
   useEffect(() => {
     fetchOrders();
@@ -33,9 +36,12 @@ function AdminOrdersPage() {
         sort: '-createdAt',
       };
 
-      // Add status filter if not 'all'
+      // Add filters to params (server-side filtering)
       if (statusFilter && statusFilter !== 'all') {
-        // Backend doesn't support status filter directly, we'll filter client-side
+        params.status = statusFilter;
+      }
+      if (searchTerm.trim()) {
+        params.search = searchTerm.trim();
       }
 
       const response = await api.get('/api/admin/orders', {
@@ -46,32 +52,11 @@ function AdminOrdersPage() {
       });
 
       if (response.data.success) {
-        let fetchedOrders = response.data.orders || [];
-        
-        // Client-side status filtering
-        if (statusFilter && statusFilter !== 'all') {
-          const statuses = statusFilter.split(',');
-          fetchedOrders = fetchedOrders.filter(order => 
-            statuses.includes(order.status)
-          );
-        }
-
-        // Client-side search filtering
-        if (searchTerm) {
-          const term = searchTerm.toLowerCase();
-          fetchedOrders = fetchedOrders.filter(order =>
-            order.name?.toLowerCase().includes(term) ||
-            order.phone?.includes(term) ||
-            order.city?.toLowerCase().includes(term) ||
-            order.productName?.toLowerCase().includes(term)
-          );
-        }
-
-        setOrders(fetchedOrders);
+        setOrders(response.data.orders || []);
         setPagination({
           ...pagination,
-          total: response.data.pagination?.total || fetchedOrders.length,
-          pages: response.data.pagination?.pages || 1,
+          total: response.data.pagination?.total || 0,
+          pages: response.data.pagination?.pages || 0,
         });
       }
     } catch (err) {
@@ -97,6 +82,61 @@ function AdminOrdersPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleEdit = (order) => {
+    setEditingOrder(order._id);
+    setEditForm({
+      name: order.name || '',
+      phone: order.phone || '',
+      city: order.city || '',
+      address: order.address || '',
+      quantity: order.quantity || 1,
+      totalPrice: order.totalPrice || '',
+      status: order.status || 'new',
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    try {
+      const response = await api.put(`/api/admin/orders/${editingOrder}`, editForm, {
+        headers: {
+          'x-admin-key': 'ZENDO_ADMIN_2026',
+        },
+      });
+
+      if (response.data.success) {
+        setEditingOrder(null);
+        fetchOrders(); // Refresh list
+      }
+    } catch (err) {
+      console.error('Error updating order:', err);
+      alert('Erreur lors de la mise à jour de la commande');
+    }
+  };
+
+  const handleDelete = async (orderId) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
+      return;
+    }
+
+    try {
+      setDeletingOrder(orderId);
+      const response = await api.delete(`/api/admin/orders/${orderId}`, {
+        headers: {
+          'x-admin-key': 'ZENDO_ADMIN_2026',
+        },
+      });
+
+      if (response.data.success) {
+        fetchOrders(); // Refresh list
+      }
+    } catch (err) {
+      console.error('Error deleting order:', err);
+      alert('Erreur lors de la suppression de la commande');
+    } finally {
+      setDeletingOrder(null);
+    }
+  };
+
   const formatPrice = (price) => {
     if (!price && price !== 0) return '0 FCFA';
     if (typeof price === 'number') {
@@ -110,7 +150,6 @@ function AdminOrdersPage() {
     return date.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: 'short',
-      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -170,6 +209,12 @@ function AdminOrdersPage() {
                   placeholder="Rechercher par nom, téléphone, ville..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      setPagination({ ...pagination, page: 1 });
+                      fetchOrders();
+                    }
+                  }}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
@@ -251,62 +296,155 @@ function AdminOrdersPage() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          ID
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Client
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Produit
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Quantité
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Prix
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Statut
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Date
-                        </th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produit</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qté</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prix</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {orders.map((order) => (
-                        <tr key={order._id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              #{order._id?.slice(-6).toUpperCase()}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm font-medium text-gray-900">{order.name}</div>
-                            <div className="text-sm text-gray-500">{order.phone}</div>
-                            <div className="text-xs text-gray-400">{order.city}</div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{getFirstWord(order.productName)}</div>
-                            <div className="text-xs text-gray-500 truncate max-w-xs">
-                              {order.productName}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{order.quantity || 1}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {formatPrice(order.totalPrice || order.productPrice)}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {getStatusBadge(order.status || 'new')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-500">{formatDate(order.createdAt)}</div>
-                          </td>
+                        <tr key={order._id} className="hover:bg-gray-50">
+                          {editingOrder === order._id ? (
+                            <td colSpan="8" className="px-4 py-4">
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h3 className="font-semibold text-gray-900 mb-3">Modifier la commande</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+                                    <input
+                                      type="text"
+                                      value={editForm.name}
+                                      onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                                    <input
+                                      type="text"
+                                      value={editForm.phone}
+                                      onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
+                                    <input
+                                      type="text"
+                                      value={editForm.city}
+                                      onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                                    <select
+                                      value={editForm.status}
+                                      onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    >
+                                      <option value="new">Nouvelle</option>
+                                      <option value="called">Appelée</option>
+                                      <option value="pending">En attente</option>
+                                      <option value="processing">En traitement</option>
+                                      <option value="in_delivery">En livraison</option>
+                                      <option value="shipped">Expédiée</option>
+                                      <option value="delivered">Livrée</option>
+                                      <option value="rescheduled">Reportée</option>
+                                      <option value="cancelled">Annulée</option>
+                                    </select>
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
+                                    <input
+                                      type="number"
+                                      value={editForm.quantity}
+                                      onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 1 })}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                      min="1"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Prix total</label>
+                                    <input
+                                      type="text"
+                                      value={editForm.totalPrice}
+                                      onChange={(e) => setEditForm({ ...editForm, totalPrice: e.target.value })}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-4">
+                                  <button
+                                    onClick={handleSaveEdit}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                  >
+                                    Enregistrer
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingOrder(null)}
+                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                  >
+                                    Annuler
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          ) : (
+                            <>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900">
+                                  #{order._id?.slice(-6).toUpperCase()}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="text-sm font-medium text-gray-900">{order.name}</div>
+                                <div className="text-sm text-gray-500">{order.phone}</div>
+                                <div className="text-xs text-gray-400">{order.city}</div>
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="text-sm text-gray-900 max-w-xs truncate">
+                                  {getFirstWord(order.productName)}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">{order.quantity || 1}</div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm font-medium text-gray-900">
+                                  {formatPrice(order.totalPrice || order.productPrice)}
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                {getStatusBadge(order.status || 'new')}
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="text-sm text-gray-500">{formatDate(order.createdAt)}</div>
+                              </td>
+                              <td className="px-4 py-3 whitespace-nowrap">
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => handleEdit(order)}
+                                    className="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                                  >
+                                    Modifier
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(order._id)}
+                                    disabled={deletingOrder === order._id}
+                                    className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors disabled:opacity-50"
+                                  >
+                                    {deletingOrder === order._id ? 'Suppression...' : 'Supprimer'}
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -318,7 +456,7 @@ function AdminOrdersPage() {
               {pagination.pages > 1 && (
                 <div className="mt-6 flex items-center justify-between">
                   <div className="text-sm text-gray-700">
-                    Page {pagination.page} sur {pagination.pages}
+                    Page {pagination.page} sur {pagination.pages} ({pagination.total} commandes)
                   </div>
                   <div className="flex gap-2">
                     <button

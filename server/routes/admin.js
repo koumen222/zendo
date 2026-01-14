@@ -27,19 +27,43 @@ const checkAdminKey = (req, res, next) => {
  */
 router.get('/orders', checkAdminKey, async (req, res) => {
   try {
-    const { page = 1, limit = 50, sort = '-createdAt' } = req.query;
+    const { page = 1, limit = 50, sort = '-createdAt', status, search } = req.query;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
 
-    const orders = await Order.find()
+    // Build query filter
+    const query = {};
+    
+    // Status filter
+    if (status && status !== 'all') {
+      const statuses = status.split(',');
+      if (statuses.length === 1) {
+        query.status = statuses[0];
+      } else {
+        query.status = { $in: statuses };
+      }
+    }
+
+    // Search filter (name, phone, city, productName)
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      query.$or = [
+        { name: searchRegex },
+        { phone: searchRegex },
+        { city: searchRegex },
+        { productName: searchRegex },
+      ];
+    }
+
+    const orders = await Order.find(query)
       .sort(sort)
       .skip(skip)
       .limit(limitNum)
       .lean();
 
-    const total = await Order.countDocuments();
+    const total = await Order.countDocuments(query);
 
     console.log(`📊 Admin: Récupération de ${orders.length} commandes (page ${pageNum}/${Math.ceil(total / limitNum)}, total: ${total})`);
 
