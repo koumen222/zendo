@@ -205,10 +205,11 @@ router.put('/orders/:id', checkAdminKey, async (req, res) => {
 });
 
 /**
- * DELETE /api/admin/orders/bulk
+ * POST /api/admin/orders/bulk-delete
  * Delete multiple orders (admin only)
+ * Using POST instead of DELETE because some HTTP clients don't support body in DELETE requests
  */
-router.delete('/orders/bulk', checkAdminKey, async (req, res) => {
+router.post('/orders/bulk-delete', checkAdminKey, async (req, res) => {
   try {
     const { orderIds } = req.body;
 

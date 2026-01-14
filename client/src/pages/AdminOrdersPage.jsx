@@ -177,13 +177,11 @@ function AdminOrdersPage() {
       
       console.log(`🗑️  Suppression en masse de ${orderIdsArray.length} commande(s)`, orderIdsArray);
 
-      const response = await api.delete('/api/admin/orders/bulk', {
+      const response = await api.post('/api/admin/orders/bulk-delete', {
+        orderIds: orderIdsArray,
+      }, {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
-          'Content-Type': 'application/json',
-        },
-        data: {
-          orderIds: orderIdsArray,
         },
       });
 
