@@ -336,34 +336,34 @@ function AdminOrdersPage() {
                 >
                   {deletingBulk ? 'Suppression...' : `Supprimer ${selectedOrders.size} commande(s)`}
                 </button>
-                      </div>
-                    )}
-                  </div>
+              </div>
+            )}
+          </div>
 
           {/* Orders List */}
           {loading ? (
             <div className="bg-white rounded-lg border border-gray-200 p-12">
               <div className="flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        </div>
+              </div>
               <p className="text-center text-gray-600 mt-4">Chargement des commandes...</p>
-                    </div>
+            </div>
           ) : error ? (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-red-800">{error}</p>
-                  </div>
+            </div>
           ) : orders.length === 0 ? (
             <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
               <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                          </svg>
+              </svg>
               <p className="text-gray-600 text-lg font-medium mb-2">Aucune commande trouvée</p>
               <p className="text-gray-500">
                 {searchTerm || statusFilter !== 'all'
                   ? 'Essayez de modifier vos filtres de recherche'
                   : 'Les commandes apparaîtront ici une fois créées'}
               </p>
-                        </div>
+            </div>
           ) : (
             <>
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -405,7 +405,7 @@ function AdminOrdersPage() {
                                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                     />
-                    </div>
+                                  </div>
                                   <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
                                     <input
@@ -414,7 +414,7 @@ function AdminOrdersPage() {
                                       onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
                                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                     />
-                      </div>
+                                  </div>
                                   <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Ville</label>
                                     <input
@@ -423,8 +423,8 @@ function AdminOrdersPage() {
                                       onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
                                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                     />
-                  </div>
-                  <div>
+                                  </div>
+                                  <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
                                     <select
                                       value={editForm.status}
@@ -441,7 +441,7 @@ function AdminOrdersPage() {
                                       <option value="rescheduled">Reportée</option>
                                       <option value="cancelled">Annulée</option>
                                     </select>
-                    </div>
+                                  </div>
                                   <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Quantité</label>
                                     <input
@@ -450,8 +450,8 @@ function AdminOrdersPage() {
                                       onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 1 })}
                                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                       min="1"
-                        />
-                      </div>
+                                    />
+                                  </div>
                                   <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Prix total</label>
                                     <input
@@ -460,8 +460,8 @@ function AdminOrdersPage() {
                                       onChange={(e) => setEditForm({ ...editForm, totalPrice: e.target.value })}
                                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                                     />
-                  </div>
-                </div>
+                                  </div>
+                                </div>
                                 <div className="flex gap-2 mt-4">
                                   <button
                                     onClick={handleSaveEdit}
@@ -475,8 +475,8 @@ function AdminOrdersPage() {
                                   >
                                     Annuler
                                   </button>
-              </div>
-            </div>
+                                </div>
+                              </div>
                             </td>
                           ) : (
                             <>
@@ -501,7 +501,7 @@ function AdminOrdersPage() {
                               <td className="px-4 py-3">
                                 <div className="text-sm text-gray-900 max-w-xs truncate">
                                   {getFirstWord(order.productName)}
-                  </div>
+                                </div>
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap">
                                 <div className="text-sm text-gray-900">{order.quantity || 1}</div>
@@ -509,7 +509,7 @@ function AdminOrdersPage() {
                               <td className="px-4 py-3 whitespace-nowrap">
                                 <div className="text-sm font-medium text-gray-900">
                                   {formatPrice(order.totalPrice || order.productPrice)}
-                </div>
+                                </div>
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap">
                                 {getStatusBadge(order.status || 'new')}
@@ -532,7 +532,7 @@ function AdminOrdersPage() {
                                   >
                                     {deletingOrder === order._id ? 'Suppression...' : 'Supprimer'}
                                   </button>
-                  </div>
+                                </div>
                               </td>
                             </>
                           )}
@@ -540,8 +540,8 @@ function AdminOrdersPage() {
                       ))}
                     </tbody>
                   </table>
+                </div>
               </div>
-            </div>
 
               {/* Pagination */}
               {pagination.pages > 1 && (
@@ -564,11 +564,11 @@ function AdminOrdersPage() {
                     >
                       Suivant
                     </button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </>
-        )}
+              )}
+            </>
+          )}
         </div>
       </div>
     </AdminLayout>
