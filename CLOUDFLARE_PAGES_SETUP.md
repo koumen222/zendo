@@ -16,12 +16,15 @@ Pour que le déploiement fonctionne correctement, vous devez configurer les para
    ```
    - Cette commande utilise le script `build` du `package.json` racine
    - Le script fait automatiquement `cd client && npm install && npm run build`
+   - Vite génère les fichiers dans `client/dist` (configuré explicitement dans `vite.config.js`)
 
 3. **Build output directory (Répertoire de sortie)** :
    ```
    client/dist
    ```
+   - ⚠️ **CRITIQUE** : Ce doit être exactement `client/dist` (pas `dist`)
    - C'est là que Vite génère les fichiers statiques
+   - Le chemin est relatif à la racine du repository
 
 4. **Node.js version** :
    - Utilisez Node.js 18 ou supérieur

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:verify": "vite build && node -e \"require('fs').statSync('dist', (err) => { if(err) { console.error('❌ dist not found!'); process.exit(1); } else { console.log('✅ dist created successfully'); } })\"",
     "preview": "vite preview"
   },
   "dependencies": {
