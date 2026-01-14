@@ -52,6 +52,15 @@ function ProductPage() {
       guarantee: 'Il est recommandé par les dentistes du Cameroun et du monde entier.',
     });
     setLoading(false);
+
+    // Meta Pixel - ViewContent pour la page produit
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+      window.fbq('track', 'ViewContent', {
+        content_ids: [slug],
+        content_type: 'product',
+        content_name: 'Hismile - Sérum blanchissant dents',
+      });
+    }
   }, [slug]);
 
   if (loading) {
