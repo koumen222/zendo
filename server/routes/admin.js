@@ -205,6 +205,48 @@ router.put('/orders/:id', checkAdminKey, async (req, res) => {
 });
 
 /**
+ * DELETE /api/admin/orders/bulk
+ * Delete multiple orders (admin only)
+ */
+router.delete('/orders/bulk', checkAdminKey, async (req, res) => {
+  try {
+    const { orderIds } = req.body;
+
+    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Liste d\'IDs de commandes requise',
+      });
+    }
+
+    // Validate all IDs
+    const validIds = orderIds.filter(id => id && id.length === 24);
+    if (validIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Aucun ID de commande valide',
+      });
+    }
+
+    const result = await Order.deleteMany({ _id: { $in: validIds } });
+    console.log(`🗑️  ${result.deletedCount} commande(s) supprimée(s) avec succès`);
+
+    res.json({
+      success: true,
+      message: `${result.deletedCount} commande(s) supprimée(s) avec succès`,
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error('❌ Admin bulk delete error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la suppression des commandes',
+      error: error.message,
+    });
+  }
+});
+
+/**
  * DELETE /api/admin/orders/:id
  * Delete an order (admin only)
  */
