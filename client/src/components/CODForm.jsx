@@ -1,5 +1,9 @@
 import { useState } from 'react';
+<<<<<<< HEAD
 import { api } from '../utils/api';
+=======
+import api from '../api';
+>>>>>>> f4a301a (feat: connect frontend to Railway API + Meta Pixel)
 
 function CODForm({ productSlug }) {
   const [quantity, setQuantity] = useState(1);
@@ -47,6 +51,16 @@ function CODForm({ productSlug }) {
       });
 
       if (response.data.success) {
+        // Meta Pixel - Purchase après succès de la commande
+        if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+          window.fbq('track', 'Purchase', {
+            content_ids: [productSlug],
+            content_type: 'product',
+            value: quantity, // ici on peut utiliser la quantité comme valeur indicative
+            currency: 'XAF',
+          });
+        }
+
         setSuccess(true);
         setQuantity(1);
         setFormData({
@@ -195,6 +209,17 @@ function CODForm({ productSlug }) {
         style={{ 
           backgroundColor: '#6B21A8',
           boxShadow: '0 10px 25px rgba(107, 33, 168, 0.4)'
+        }}
+        onClick={() => {
+          // Meta Pixel - AddToCart lors du clic sur le bouton Commander
+          if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+            window.fbq('track', 'AddToCart', {
+              content_ids: [productSlug],
+              content_type: 'product',
+              value: quantity,
+              currency: 'XAF',
+            });
+          }
         }}
       >
         {loading ? 'Traitement...' : 'Commandez maintenant'}
