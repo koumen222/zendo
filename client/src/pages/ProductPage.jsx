@@ -53,6 +53,15 @@ function ProductPage() {
     });
     setLoading(false);
 
+    // Preload des premières images critiques pour chargement ultra-rapide
+    if (typeof window !== 'undefined') {
+      const firstImage = new Image();
+      firstImage.src = '/ChatGPT Image 13 janv. 2026, 17_11_57.png';
+      
+      const secondImage = new Image();
+      secondImage.src = '/images/ChatGPT Image 13 janv. 2026, 17_25_05.png';
+    }
+
     // Meta Pixel - ViewContent pour la page produit
     if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
       window.fbq('track', 'ViewContent', {
@@ -118,123 +127,140 @@ function ProductPage() {
         </div>
       </section>
 
-      {/* Images - Collées au header */}
+      {/* Images - Optimisées pour chargement ultra-rapide */}
+      {/* Première image - Chargement prioritaire (above the fold) */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/ChatGPT Image 13 janv. 2026, 17_11_57.png"
-            alt={productData?.name || 'Produit Zendo'}
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/ChatGPT Image 13 janv. 2026, 17_11_57.png"
+          alt={productData?.name || 'Produit Zendo'}
+          className="w-full h-auto object-top"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
       
-      {/* Deuxième image */}
+      {/* Deuxième image - Chargement prioritaire */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/images/ChatGPT Image 13 janv. 2026, 17_25_05.png"
-            alt={productData?.name || 'Produit Zendo'}
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/images/ChatGPT Image 13 janv. 2026, 17_25_05.png"
+          alt={productData?.name || 'Produit Zendo'}
+          className="w-full h-auto object-top"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
       
-      {/* Troisième image */}
+      {/* Troisième image - Lazy loading pour les images suivantes */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/images/ChatGPT Image 13 janv. 2026, 17_38_17.png"
-            alt={productData?.name || 'Produit Zendo'}
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/images/ChatGPT Image 13 janv. 2026, 17_38_17.png"
+          alt={productData?.name || 'Produit Zendo'}
+          className="w-full h-auto object-top"
+          loading="lazy"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
       
-      {/* Quatrième image */}
+      {/* Quatrième image - Lazy loading */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/images/bf.png"
-            alt={productData?.name || 'Produit Zendo'}
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/images/bf.png"
+          alt={productData?.name || 'Produit Zendo'}
+          className="w-full h-auto object-top"
+          loading="lazy"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
       
-      {/* Cinquième image - Avis clients */}
+      {/* Cinquième image - Avis clients - Lazy loading */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/images/e4c87fd5-acaf-4a1c-9170-4fcb392af042.png"
-            alt="Avis clients Zendo"
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/images/e4c87fd5-acaf-4a1c-9170-4fcb392af042.png"
+          alt="Avis clients Zendo"
+          className="w-full h-auto object-top"
+          loading="lazy"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
       
-      {/* Sixième image - Offres */}
+      {/* Sixième image - Offres - Lazy loading */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/images/7563d5bf-b451-4ef9-97c3-b969f41d17e5.png"
-            alt="Offres exclusives Zendo"
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/images/7563d5bf-b451-4ef9-97c3-b969f41d17e5.png"
+          alt="Offres exclusives Zendo"
+          className="w-full h-auto object-top"
+          loading="lazy"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
 
-      {/* Image recommandation experte */}
+      {/* Image recommandation experte - Lazy loading */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/images/681a01b9-c2cd-4eba-84b0-3a81622c0afc.png"
-            alt="Recommandation experte dentaire"
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/images/681a01b9-c2cd-4eba-84b0-3a81622c0afc.png"
+          alt="Recommandation experte dentaire"
+          className="w-full h-auto object-top"
+          loading="lazy"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
 
       {/* CTA Section - Order Form */}
@@ -248,21 +274,23 @@ function ProductPage() {
         </div>
       </section>
 
-      {/* Image en bas */}
+      {/* Image en bas - Lazy loading */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
-          <img
-            src="/images/ChatGPT Image 13 janv. 2026, 17_36_08.png"
-            alt="Avantages Zendo"
-            className="w-full h-auto object-top"
-            style={{
-              width: '100%',
-              maxWidth: '1080px',
-              objectFit: 'cover',
-              objectPosition: 'top',
-              margin: '0 auto',
-              display: 'block',
-            }}
-          />
+        <img
+          src="/images/ChatGPT Image 13 janv. 2026, 17_36_08.png"
+          alt="Avantages Zendo"
+          className="w-full h-auto object-top"
+          loading="lazy"
+          decoding="async"
+          style={{
+            width: '100%',
+            maxWidth: '1080px',
+            objectFit: 'cover',
+            objectPosition: 'top',
+            margin: '0 auto',
+            display: 'block',
+          }}
+        />
       </div>
 
       {/* Bouton flottant Commander */}
