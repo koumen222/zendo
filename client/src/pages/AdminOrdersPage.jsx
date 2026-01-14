@@ -173,23 +173,33 @@ function AdminOrdersPage() {
 
     try {
       setDeletingBulk(true);
+      const orderIdsArray = Array.from(selectedOrders);
+      
+      console.log(`🗑️  Suppression en masse de ${orderIdsArray.length} commande(s)`, orderIdsArray);
+
       const response = await api.delete('/api/admin/orders/bulk', {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
+          'Content-Type': 'application/json',
         },
         data: {
-          orderIds: Array.from(selectedOrders),
+          orderIds: orderIdsArray,
         },
       });
 
       if (response.data.success) {
+        const deletedCount = response.data.deletedCount || orderIdsArray.length;
+        console.log(`✅ ${deletedCount} commande(s) supprimée(s) avec succès`);
         setSelectedOrders(new Set());
         fetchOrders(); // Refresh list
-        alert(`${response.data.deletedCount} commande(s) supprimée(s) avec succès`);
+        alert(`${deletedCount} commande(s) supprimée(s) avec succès`);
+      } else {
+        throw new Error(response.data.message || 'Erreur lors de la suppression');
       }
     } catch (err) {
-      console.error('Error bulk deleting orders:', err);
-      alert('Erreur lors de la suppression des commandes');
+      console.error('❌ Error bulk deleting orders:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Erreur lors de la suppression des commandes';
+      alert(`Erreur: ${errorMessage}`);
     } finally {
       setDeletingBulk(false);
     }
