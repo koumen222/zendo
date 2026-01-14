@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
 import { getFirstWord } from '../utils/format';
@@ -31,7 +31,7 @@ function AdminDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/admin/stats', {
+      const response = await api.get('/api/admin/stats', {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
         },
@@ -53,7 +53,7 @@ function AdminDashboard() {
 
   const fetchRecentOrders = async () => {
     try {
-      const response = await axios.get('/api/admin/orders', {
+      const response = await api.get('/api/admin/orders', {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
         },
