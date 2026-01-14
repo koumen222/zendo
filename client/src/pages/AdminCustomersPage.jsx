@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
-<<<<<<< HEAD
-=======
 import api from '../api';
->>>>>>> f4a301a (feat: connect frontend to Railway API + Meta Pixel)
 import AdminLayout from '../components/AdminLayout';
-import { api } from '../utils/api';
 
 function AdminCustomersPage() {
   const [customers, setCustomers] = useState([]);

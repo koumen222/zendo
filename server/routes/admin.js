@@ -41,6 +41,8 @@ router.get('/orders', checkAdminKey, async (req, res) => {
 
     const total = await Order.countDocuments();
 
+    console.log(`📊 Admin: Récupération de ${orders.length} commandes (page ${pageNum}/${Math.ceil(total / limitNum)}, total: ${total})`);
+
     res.json({
       success: true,
       orders,
