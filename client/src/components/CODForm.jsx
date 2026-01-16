@@ -134,7 +134,7 @@ function CODForm({ productSlug }) {
           En attendant, vous pouvez suivre votre commande via WhatsApp :
         </p>
         <a
-          href="https://wa.me/237676778377?text=Bonjour, je souhaite suivre ma commande"
+          href="https://wa.me/237676463725?text=Bonjour, je souhaite suivre ma commande au {formData.name}"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors mb-4"
