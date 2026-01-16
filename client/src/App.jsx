@@ -17,10 +17,14 @@ function App() {
   const isAdminPage = location.pathname.startsWith('/admin');
   const isProductPage = location.pathname.startsWith('/produit');
 
-  // Track page visits (only for public pages, not admin)
+  // Track page visits (only for public pages, not admin) - Délai pour ne pas bloquer le chargement
   useEffect(() => {
     if (!isAdminPage) {
-      trackVisit(location.pathname);
+      // Délai pour ne pas bloquer le chargement initial
+      const timer = setTimeout(() => {
+        trackVisit(location.pathname);
+      }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [location.pathname, isAdminPage]);
 

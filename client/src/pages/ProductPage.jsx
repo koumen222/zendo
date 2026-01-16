@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import CODForm from '../components/CODForm';
+import { waitForCriticalImages, markPageAsLoaded } from '../utils/pageLoader';
 
 function ProductPage() {
   const { slug } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [productData, setProductData] = useState(null);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   // Fonction pour scroller vers le formulaire avec effet visuel
   const scrollToForm = () => {
@@ -51,33 +53,42 @@ function ProductPage() {
       whyItWorks: null,
       guarantee: 'Il est recommandé par les dentistes du Cameroun et du monde entier.',
     });
-    setLoading(false);
 
-    // Preload des premières images critiques pour chargement ultra-rapide
-    if (typeof window !== 'undefined') {
-      const firstImage = new Image();
-      firstImage.src = '/ChatGPT Image 13 janv. 2026, 17_11_57.png';
-      
-      const secondImage = new Image();
-      secondImage.src = '/images/ChatGPT Image 13 janv. 2026, 17_25_05.png';
-    }
+    // Attendre que les images critiques soient chargées avant d'afficher la page
+    waitForCriticalImages().then(() => {
+      setImagesLoaded(true);
+      setLoading(false);
+      markPageAsLoaded();
 
-    // Meta Pixel - ViewContent pour la page produit
-    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-      window.fbq('track', 'ViewContent', {
-        content_ids: [slug],
-        content_type: 'product',
-        content_name: 'Hismile - Sérum blanchissant dents',
-      });
-    }
-  }, [slug]);
+      // Meta Pixel - ViewContent pour la page produit (seulement après chargement)
+      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+        window.fbq('track', 'ViewContent', {
+          content_ids: [slug],
+          content_type: 'product',
+          content_name: 'Hismile - Sérum blanchissant dents',
+        });
+      }
+    });
 
-  if (loading) {
+    // Timeout de sécurité (max 3 secondes)
+    const timeout = setTimeout(() => {
+      if (!imagesLoaded) {
+        setImagesLoaded(true);
+        setLoading(false);
+        markPageAsLoaded();
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, [slug, imagesLoaded]);
+
+  if (loading || !imagesLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg font-medium">Chargement des images...</p>
+          <p className="text-gray-400 text-sm mt-2">Veuillez patienter</p>
         </div>
       </div>
     );

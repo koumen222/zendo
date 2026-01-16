@@ -11,18 +11,31 @@
     <link rel="preload" as="image" href="/ChatGPT Image 13 janv. 2026, 17_11_57.png" fetchpriority="high" />
     <link rel="preload" as="image" href="/images/ChatGPT Image 13 janv. 2026, 17_25_05.png" fetchpriority="high" />
 
-    <!-- Meta Pixel Code -->
+    <!-- Meta Pixel Code - Chargé après le chargement de la page -->
     <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src='https://connect.facebook.net/en_US/fbevents.js';
-      s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script');
-      fbq('init', '1615349376501958');
-      fbq('track', 'PageView');
+      // Fonction pour initialiser Meta Pixel après chargement
+      function initMetaPixel() {
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src='https://connect.facebook.net/en_US/fbevents.js';
+        s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script');
+        fbq('init', '1615349376501958');
+        fbq('track', 'PageView');
+      }
+      
+      // Attendre que le DOM soit prêt et que les images critiques soient chargées
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          // Délai supplémentaire pour ne pas bloquer le chargement des images
+          setTimeout(initMetaPixel, 500);
+        });
+      } else {
+        setTimeout(initMetaPixel, 500);
+      }
     </script>
   </head>
   <body>
