@@ -62,10 +62,34 @@ function AdminOrdersPage() {
           total: response.data.pagination?.total || 0,
           pages: response.data.pagination?.pages || 0,
         });
+      } else {
+        throw new Error(response.data.message || 'Réponse invalide du serveur');
       }
     } catch (err) {
-      console.error('Error fetching orders:', err);
-      setError('Erreur lors du chargement des commandes');
+      console.error('❌ Error fetching orders:', err);
+      
+      let errorMessage = 'Erreur lors du chargement des commandes';
+      
+      if (err.response) {
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 401) {
+          errorMessage = 'Erreur d\'authentification : Clé admin invalide';
+        } else if (status === 404) {
+          errorMessage = 'Endpoint non trouvé. Vérifiez la configuration du serveur.';
+        } else if (status === 500) {
+          errorMessage = `Erreur serveur : ${data.message || 'Erreur interne du serveur'}`;
+        } else {
+          errorMessage = `Erreur ${status} : ${data.message || 'Erreur lors du chargement'}`;
+        }
+      } else if (err.request) {
+        errorMessage = 'Aucune réponse du serveur. Vérifiez votre connexion internet.';
+      } else {
+        errorMessage = `Erreur de configuration : ${err.message}`;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -110,10 +134,36 @@ function AdminOrdersPage() {
       if (response.data.success) {
         setEditingOrder(null);
         fetchOrders(); // Refresh list
+      } else {
+        throw new Error(response.data.message || 'Erreur lors de la mise à jour');
       }
     } catch (err) {
-      console.error('Error updating order:', err);
-      alert('Erreur lors de la mise à jour de la commande');
+      console.error('❌ Error updating order:', err);
+      
+      let errorMessage = 'Erreur lors de la mise à jour de la commande';
+      
+      if (err.response) {
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 400) {
+          errorMessage = `Erreur de validation : ${data.message || 'Données invalides'}`;
+        } else if (status === 401) {
+          errorMessage = 'Erreur d\'authentification : Clé admin invalide';
+        } else if (status === 404) {
+          errorMessage = 'Commande non trouvée';
+        } else if (status === 500) {
+          errorMessage = `Erreur serveur : ${data.message || 'Erreur interne du serveur'}`;
+        } else {
+          errorMessage = `Erreur ${status} : ${data.message || 'Erreur lors de la mise à jour'}`;
+        }
+      } else if (err.request) {
+        errorMessage = 'Aucune réponse du serveur. Vérifiez votre connexion internet.';
+      } else {
+        errorMessage = `Erreur de configuration : ${err.message}`;
+      }
+      
+      alert(`❌ ${errorMessage}`);
     }
   };
 
@@ -133,10 +183,36 @@ function AdminOrdersPage() {
       if (response.data.success) {
         fetchOrders(); // Refresh list
         setSelectedOrders(new Set());
+      } else {
+        throw new Error(response.data.message || 'Erreur lors de la suppression');
       }
     } catch (err) {
-      console.error('Error deleting order:', err);
-      alert('Erreur lors de la suppression de la commande');
+      console.error('❌ Error deleting order:', err);
+      
+      let errorMessage = 'Erreur lors de la suppression de la commande';
+      
+      if (err.response) {
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 400) {
+          errorMessage = `Erreur de validation : ${data.message || 'ID invalide'}`;
+        } else if (status === 401) {
+          errorMessage = 'Erreur d\'authentification : Clé admin invalide';
+        } else if (status === 404) {
+          errorMessage = 'Commande non trouvée';
+        } else if (status === 500) {
+          errorMessage = `Erreur serveur : ${data.message || 'Erreur interne du serveur'}`;
+        } else {
+          errorMessage = `Erreur ${status} : ${data.message || 'Erreur lors de la suppression'}`;
+        }
+      } else if (err.request) {
+        errorMessage = 'Aucune réponse du serveur. Vérifiez votre connexion internet.';
+      } else {
+        errorMessage = `Erreur de configuration : ${err.message}`;
+      }
+      
+      alert(`❌ ${errorMessage}`);
     } finally {
       setDeletingOrder(null);
     }
@@ -173,23 +249,61 @@ function AdminOrdersPage() {
 
     try {
       setDeletingBulk(true);
-      const response = await api.delete('/api/admin/orders/bulk', {
-        headers: {
-          'x-admin-key': 'ZENDO_ADMIN_2026',
-        },
-        data: {
-          orderIds: Array.from(selectedOrders),
-        },
-      });
+      const orderIdsArray = Array.from(selectedOrders);
+
+      console.log(`🗑️  Suppression en masse de ${orderIdsArray.length} commande(s)`, orderIdsArray);
+
+      const response = await api.post(
+        '/api/admin/orders/bulk-delete',
+        { orderIds: orderIdsArray },
+        {
+          headers: {
+            'x-admin-key': 'ZENDO_ADMIN_2026',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (response.data.success) {
+        const deletedCount = response.data.deletedCount || orderIdsArray.length;
+        console.log(`✅ ${deletedCount} commande(s) supprimée(s) avec succès`);
         setSelectedOrders(new Set());
         fetchOrders(); // Refresh list
-        alert(`${response.data.deletedCount} commande(s) supprimée(s) avec succès`);
+        alert(`✅ ${deletedCount} commande(s) supprimée(s) avec succès`);
+      } else {
+        throw new Error(response.data.message || 'Erreur lors de la suppression');
       }
     } catch (err) {
-      console.error('Error bulk deleting orders:', err);
-      alert('Erreur lors de la suppression des commandes');
+      console.error('❌ Error bulk deleting orders:', err);
+      
+      // Gestion d'erreur détaillée
+      let errorMessage = 'Erreur lors de la suppression des commandes';
+      
+      if (err.response) {
+        // Erreur HTTP avec réponse du serveur
+        const status = err.response.status;
+        const data = err.response.data;
+        
+        if (status === 400) {
+          errorMessage = `Erreur de validation : ${data.message || 'Données invalides'}`;
+        } else if (status === 401) {
+          errorMessage = 'Erreur d\'authentification : Clé admin invalide';
+        } else if (status === 404) {
+          errorMessage = 'Endpoint non trouvé. Vérifiez la configuration du serveur.';
+        } else if (status === 500) {
+          errorMessage = `Erreur serveur : ${data.message || 'Erreur interne du serveur'}`;
+        } else {
+          errorMessage = `Erreur ${status} : ${data.message || 'Erreur inconnue'}`;
+        }
+      } else if (err.request) {
+        // Requête envoyée mais pas de réponse
+        errorMessage = 'Aucune réponse du serveur. Vérifiez votre connexion internet.';
+      } else {
+        // Erreur lors de la configuration de la requête
+        errorMessage = `Erreur de configuration : ${err.message}`;
+      }
+      
+      alert(`❌ ${errorMessage}`);
     } finally {
       setDeletingBulk(false);
     }

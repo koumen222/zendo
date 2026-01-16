@@ -213,36 +213,76 @@ router.post('/orders/bulk-delete', checkAdminKey, async (req, res) => {
   try {
     const { orderIds } = req.body;
 
-    if (!orderIds || !Array.isArray(orderIds) || orderIds.length === 0) {
+    // Validation de la structure de la requête
+    if (!orderIds) {
       return res.status(400).json({
         success: false,
-        message: 'Liste d\'IDs de commandes requise',
+        message: 'Le champ "orderIds" est requis dans le corps de la requête',
       });
     }
 
-    // Validate all IDs
-    const validIds = orderIds.filter(id => id && id.length === 24);
+    if (!Array.isArray(orderIds)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Le champ "orderIds" doit être un tableau',
+      });
+    }
+
+    if (orderIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Aucun ID de commande fourni',
+      });
+    }
+
+    // Validation des IDs (MongoDB ObjectId doit avoir 24 caractères hexadécimaux)
+    const validIds = orderIds.filter(id => {
+      if (!id || typeof id !== 'string') return false;
+      // Vérifier que c'est un ObjectId valide (24 caractères hexadécimaux)
+      return /^[0-9a-fA-F]{24}$/.test(id);
+    });
+
     if (validIds.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Aucun ID de commande valide',
+        message: `Aucun ID de commande valide trouvé parmi les ${orderIds.length} ID(s) fourni(s)`,
       });
     }
 
+    if (validIds.length < orderIds.length) {
+      console.warn(`⚠️  ${orderIds.length - validIds.length} ID(s) invalide(s) ignoré(s) sur ${orderIds.length}`);
+    }
+
+    // Suppression en masse
     const result = await Order.deleteMany({ _id: { $in: validIds } });
-    console.log(`🗑️  ${result.deletedCount} commande(s) supprimée(s) avec succès`);
+    
+    console.log(`🗑️  ${result.deletedCount} commande(s) supprimée(s) avec succès sur ${validIds.length} demandée(s)`);
 
     res.json({
       success: true,
       message: `${result.deletedCount} commande(s) supprimée(s) avec succès`,
       deletedCount: result.deletedCount,
+      requestedCount: validIds.length,
     });
   } catch (error) {
     console.error('❌ Admin bulk delete error:', error);
-    res.status(500).json({
+    
+    // Gestion d'erreur détaillée
+    let statusCode = 500;
+    let errorMessage = 'Erreur lors de la suppression des commandes';
+
+    if (error.name === 'CastError' || error.name === 'ValidationError') {
+      statusCode = 400;
+      errorMessage = `Erreur de validation : ${error.message}`;
+    } else if (error.name === 'MongoServerError') {
+      statusCode = 500;
+      errorMessage = `Erreur de base de données : ${error.message}`;
+    }
+
+    res.status(statusCode).json({
       success: false,
-      message: 'Erreur lors de la suppression des commandes',
-      error: error.message,
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
     });
   }
 });
