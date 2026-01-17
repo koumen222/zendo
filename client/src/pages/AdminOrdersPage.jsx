@@ -22,12 +22,14 @@ function AdminOrdersPage() {
   const [deletingOrder, setDeletingOrder] = useState(null);
   const [selectedOrders, setSelectedOrders] = useState(new Set());
   const [deletingBulk, setDeletingBulk] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     fetchOrders();
     // Reset selections when filters or page change
     setSelectedOrders(new Set());
-  }, [pagination.page, statusFilter, searchTerm]);
+  }, [pagination.page, statusFilter, searchTerm, startDate, endDate]);
 
   const fetchOrders = async () => {
     try {
@@ -46,6 +48,12 @@ function AdminOrdersPage() {
       }
       if (searchTerm.trim()) {
         params.search = searchTerm.trim();
+      }
+      if (startDate) {
+        params.startDate = startDate;
+      }
+      if (endDate) {
+        params.endDate = endDate;
       }
 
       const response = await api.get('/api/admin/orders', {
@@ -108,6 +116,20 @@ function AdminOrdersPage() {
   const handlePageChange = (newPage) => {
     setPagination({ ...pagination, page: newPage });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleTodayFilter = () => {
+    const today = new Date();
+    const formatted = today.toISOString().split('T')[0];
+    setStartDate(formatted);
+    setEndDate(formatted);
+    setPagination({ ...pagination, page: 1 });
+  };
+
+  const handleClearDates = () => {
+    setStartDate('');
+    setEndDate('');
+    setPagination({ ...pagination, page: 1 });
   };
 
   const handleEdit = (order) => {
@@ -433,6 +455,50 @@ function AdminOrdersPage() {
                     }`}
                   >
                     Livrées
+                  </button>
+                </div>
+              </div>
+
+              {/* Date Filter */}
+              <div className="flex flex-col md:flex-row items-start md:items-end gap-3">
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-gray-600 mb-1">Date debut</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => {
+                      setStartDate(e.target.value);
+                      setPagination({ ...pagination, page: 1 });
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs font-medium text-gray-600 mb-1">Date fin</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => {
+                      setEndDate(e.target.value);
+                      setPagination({ ...pagination, page: 1 });
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTodayFilter}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                  >
+                    Aujourd'hui
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClearDates}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  >
+                    Effacer
                   </button>
                 </div>
               </div>

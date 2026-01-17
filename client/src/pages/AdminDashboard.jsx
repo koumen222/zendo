@@ -16,6 +16,9 @@ function AdminDashboard() {
   const [recentOrders, setRecentOrders] = useState([]);
   const [timeRange, setTimeRange] = useState('30 derniers jours');
   const [days, setDays] = useState(30);
+  const [ordersDate, setOrdersDate] = useState('');
+  const [ordersStartDate, setOrdersStartDate] = useState('');
+  const [ordersEndDate, setOrdersEndDate] = useState('');
 
   useEffect(() => {
     fetchStats();
@@ -26,7 +29,7 @@ function AdminDashboard() {
       fetchRecentOrders();
     }, 30000);
     return () => clearInterval(interval);
-  }, [days]);
+  }, [days, ordersStartDate, ordersEndDate]);
 
   const fetchStats = async () => {
     try {
@@ -53,14 +56,23 @@ function AdminDashboard() {
 
   const fetchRecentOrders = async () => {
     try {
+      const params = {
+        limit: 5,
+        sort: '-createdAt',
+      };
+
+      if (ordersStartDate) {
+        params.startDate = ordersStartDate;
+      }
+      if (ordersEndDate) {
+        params.endDate = ordersEndDate;
+      }
+
       const response = await api.get('/api/admin/orders', {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
         },
-        params: {
-          limit: 5,
-          sort: '-createdAt',
-        },
+        params,
       });
 
       if (response.data.success) {
@@ -80,6 +92,42 @@ function AdminDashboard() {
       365: '1 an',
     };
     setTimeRange(labels[newDays] || `${newDays} derniers jours`);
+  };
+
+  const formatDateInput = (date) => date.toISOString().split('T')[0];
+
+  const handleOrdersToday = () => {
+    const today = new Date();
+    const formatted = formatDateInput(today);
+    setOrdersDate(formatted);
+    setOrdersStartDate(formatted);
+    setOrdersEndDate(formatted);
+  };
+
+  const handleOrdersYesterday = () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const formatted = formatDateInput(yesterday);
+    setOrdersDate(formatted);
+    setOrdersStartDate(formatted);
+    setOrdersEndDate(formatted);
+  };
+
+  const handleOrdersDateChange = (value) => {
+    setOrdersDate(value);
+    if (value) {
+      setOrdersStartDate(value);
+      setOrdersEndDate(value);
+    } else {
+      setOrdersStartDate('');
+      setOrdersEndDate('');
+    }
+  };
+
+  const handleOrdersClear = () => {
+    setOrdersDate('');
+    setOrdersStartDate('');
+    setOrdersEndDate('');
   };
 
   const formatPrice = (price) => {
@@ -431,17 +479,51 @@ function AdminDashboard() {
             </div>
 
             {/* Recent Orders */}
-            {recentOrders.length > 0 && (
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-                <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                  <h2 className="text-base font-semibold text-gray-900">Commandes récentes</h2>
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900">Commandes</h2>
+                  <p className="text-xs text-gray-500">Aujourd'hui, hier ou date precise</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleOrdersToday}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                  >
+                    Aujourd'hui
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleOrdersYesterday}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  >
+                    Hier
+                  </button>
+                  <input
+                    type="date"
+                    value={ordersDate}
+                    onChange={(e) => handleOrdersDateChange(e.target.value)}
+                    className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleOrdersClear}
+                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                  >
+                    Tout
+                  </button>
                   <Link
                     to="/admin/orders"
-                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    className="text-xs text-blue-600 hover:text-blue-700 font-medium ml-2"
                   >
                     Voir toutes →
                   </Link>
                 </div>
+              </div>
+              {recentOrders.length === 0 ? (
+                <div className="p-6 text-sm text-gray-500">Aucune commande pour cette date.</div>
+              ) : (
                 <div className="divide-y divide-gray-100">
                   {recentOrders.map((order) => (
                     <Link
@@ -469,8 +551,8 @@ function AdminDashboard() {
                     </Link>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </>
         )}
       </div>
