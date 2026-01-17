@@ -255,7 +255,7 @@ function AdminOrdersPage() {
 
       const response = await api.post(
         '/api/admin/orders/bulk-delete',
-        { orderIds: orderIdsArray },
+        { ids: orderIdsArray },
         {
           headers: {
             'x-admin-key': 'ZENDO_ADMIN_2026',

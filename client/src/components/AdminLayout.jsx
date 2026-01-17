@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 
 function AdminLayout({ children }) {
   const location = useLocation();
@@ -32,7 +32,7 @@ function AdminLayout({ children }) {
   useEffect(() => {
     const fetchOrdersCount = async () => {
       try {
-        const response = await axios.get('/api/admin/orders', {
+        const response = await api.get('/api/admin/orders', {
           headers: {
             'x-admin-key': 'ZENDO_ADMIN_2026',
           },
