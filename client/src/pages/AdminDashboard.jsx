@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../api';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
@@ -14,11 +14,11 @@ function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [recentOrders, setRecentOrders] = useState([]);
-  const [timeRange, setTimeRange] = useState('30 derniers jours');
   const [days, setDays] = useState(30);
-  const [ordersDate, setOrdersDate] = useState('');
-  const [ordersStartDate, setOrdersStartDate] = useState('');
-  const [ordersEndDate, setOrdersEndDate] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [rangeStart, setRangeStart] = useState('');
+  const [rangeEnd, setRangeEnd] = useState('');
+  const dateInputRef = useRef(null);
 
   useEffect(() => {
     fetchStats();
@@ -29,7 +29,7 @@ function AdminDashboard() {
       fetchRecentOrders();
     }, 30000);
     return () => clearInterval(interval);
-  }, [days, ordersStartDate, ordersEndDate]);
+  }, [days, rangeStart, rangeEnd]);
 
   const fetchStats = async () => {
     try {
@@ -38,9 +38,7 @@ function AdminDashboard() {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
         },
-        params: {
-          days: days,
-        },
+        params: rangeStart || rangeEnd ? { startDate: rangeStart, endDate: rangeEnd } : { days: days },
       });
 
       if (response.data.success) {
@@ -60,12 +58,11 @@ function AdminDashboard() {
         limit: 5,
         sort: '-createdAt',
       };
-
-      if (ordersStartDate) {
-        params.startDate = ordersStartDate;
+      if (rangeStart) {
+        params.startDate = rangeStart;
       }
-      if (ordersEndDate) {
-        params.endDate = ordersEndDate;
+      if (rangeEnd) {
+        params.endDate = rangeEnd;
       }
 
       const response = await api.get('/api/admin/orders', {
@@ -85,49 +82,90 @@ function AdminDashboard() {
 
   const handleTimeRangeChange = (newDays) => {
     setDays(newDays);
-    const labels = {
-      7: '7 derniers jours',
-      30: '30 derniers jours',
-      90: '90 derniers jours',
-      365: '1 an',
-    };
-    setTimeRange(labels[newDays] || `${newDays} derniers jours`);
+    setDateFilter('');
+    setRangeStart('');
+    setRangeEnd('');
   };
 
   const formatDateInput = (date) => date.toISOString().split('T')[0];
 
-  const handleOrdersToday = () => {
+  const handleToday = () => {
+    setDays(0);
     const today = new Date();
     const formatted = formatDateInput(today);
-    setOrdersDate(formatted);
-    setOrdersStartDate(formatted);
-    setOrdersEndDate(formatted);
+    setDateFilter(formatted);
+    setRangeStart(formatted);
+    setRangeEnd(formatted);
   };
 
-  const handleOrdersYesterday = () => {
+  const handleYesterday = () => {
+    setDays(0);
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const formatted = formatDateInput(yesterday);
-    setOrdersDate(formatted);
-    setOrdersStartDate(formatted);
-    setOrdersEndDate(formatted);
+    setDateFilter(formatted);
+    setRangeStart(formatted);
+    setRangeEnd(formatted);
   };
 
-  const handleOrdersDateChange = (value) => {
-    setOrdersDate(value);
+  const handleDateChange = (value) => {
+    setDays(0);
+    setDateFilter(value);
     if (value) {
-      setOrdersStartDate(value);
-      setOrdersEndDate(value);
+      setRangeStart(value);
+      setRangeEnd(value);
     } else {
-      setOrdersStartDate('');
-      setOrdersEndDate('');
+      setRangeStart('');
+      setRangeEnd('');
     }
   };
 
-  const handleOrdersClear = () => {
-    setOrdersDate('');
-    setOrdersStartDate('');
-    setOrdersEndDate('');
+  const handleClearDate = () => {
+    setDateFilter('');
+    setRangeStart('');
+    setRangeEnd('');
+    if (!days || days === 0) {
+      setDays(30);
+    }
+  };
+
+  const handlePeriodChange = (value) => {
+    if (value === 'today') {
+      handleToday();
+      return;
+    }
+    if (value === 'yesterday') {
+      handleYesterday();
+      return;
+    }
+    if (value === 'custom') {
+      handleClearDate();
+      setDays(0);
+      requestAnimationFrame(() => dateInputRef.current?.showPicker?.());
+      return;
+    }
+    const parsed = parseInt(value, 10);
+    if (!Number.isNaN(parsed)) {
+      handleTimeRangeChange(parsed);
+    }
+  };
+
+  const getPeriodValue = () => {
+    if (rangeStart && rangeEnd) {
+      if (rangeStart === rangeEnd) {
+        const today = formatDateInput(new Date());
+        const yesterday = formatDateInput(new Date(Date.now() - 86400000));
+        if (rangeStart === today) return 'today';
+        if (rangeStart === yesterday) return 'yesterday';
+        return 'custom';
+      }
+      return 'custom';
+    }
+    if (days === 7) return '7';
+    if (days === 30) return '30';
+    if (days === 90) return '90';
+    if (days === 365) return '365';
+    return '30';
   };
 
   const formatPrice = (price) => {
@@ -175,48 +213,39 @@ function AdminDashboard() {
     <AdminLayout>
       <div className="p-6">
         {/* Filter Bar */}
-        <div className="mb-6 flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleTimeRangeChange(7)}
-              className={`px-4 py-2 bg-white border rounded-lg text-sm font-medium transition-colors ${
-                days === 7
-                  ? 'border-blue-500 text-blue-700 bg-blue-50'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
+        <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
+            <select
+              value={getPeriodValue()}
+              onChange={(e) => handlePeriodChange(e.target.value)}
+              className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              7j
-            </button>
-            <button
-              onClick={() => handleTimeRangeChange(30)}
-              className={`px-4 py-2 bg-white border rounded-lg text-sm font-medium transition-colors ${
-                days === 30
-                  ? 'border-blue-500 text-blue-700 bg-blue-50'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              30j
-            </button>
-            <button
-              onClick={() => handleTimeRangeChange(90)}
-              className={`px-4 py-2 bg-white border rounded-lg text-sm font-medium transition-colors ${
-                days === 90
-                  ? 'border-blue-500 text-blue-700 bg-blue-50'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              90j
-            </button>
-            <button
-              onClick={() => handleTimeRangeChange(365)}
-              className={`px-4 py-2 bg-white border rounded-lg text-sm font-medium transition-colors ${
-                days === 365
-                  ? 'border-blue-500 text-blue-700 bg-blue-50'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              1 an
-            </button>
+              <option value="today">Aujourd'hui</option>
+              <option value="yesterday">Hier</option>
+              <option value="custom">Date precise</option>
+              <option value="7">7j</option>
+              <option value="30">30j</option>
+              <option value="90">90j</option>
+              <option value="365">1 an</option>
+            </select>
+            {getPeriodValue() === 'custom' && (
+              <>
+                <input
+                  type="date"
+                  ref={dateInputRef}
+                  value={dateFilter}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700"
+                />
+                <button
+                  type="button"
+                  onClick={handleClearDate}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Tout
+                </button>
+              </>
+            )}
           </div>
           <select className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             <option>Tous les canaux</option>
@@ -480,46 +509,17 @@ function AdminDashboard() {
 
             {/* Recent Orders */}
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-200 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div>
                   <h2 className="text-base font-semibold text-gray-900">Commandes</h2>
-                  <p className="text-xs text-gray-500">Aujourd'hui, hier ou date precise</p>
+                  <p className="text-xs text-gray-500">Filtrees par la selection du dashboard</p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleOrdersToday}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                  >
-                    Aujourd'hui
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleOrdersYesterday}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
-                  >
-                    Hier
-                  </button>
-                  <input
-                    type="date"
-                    value={ordersDate}
-                    onChange={(e) => handleOrdersDateChange(e.target.value)}
-                    className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleOrdersClear}
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
-                  >
-                    Tout
-                  </button>
-                  <Link
-                    to="/admin/orders"
-                    className="text-xs text-blue-600 hover:text-blue-700 font-medium ml-2"
-                  >
-                    Voir toutes →
-                  </Link>
-                </div>
+                <Link
+                  to="/admin/orders"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Voir toutes →
+                </Link>
               </div>
               {recentOrders.length === 0 ? (
                 <div className="p-6 text-sm text-gray-500">Aucune commande pour cette date.</div>
