@@ -9,7 +9,7 @@ function CataloguePage() {
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
-    // Produit Hismile uniquement
+    // Produits Hismile + BBL
     setTimeout(() => {
       const mockProducts = [
         {
@@ -18,6 +18,20 @@ function CataloguePage() {
           price: 'Prix sur demande',
           shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
           productImages: [],
+        },
+        {
+          slug: 'bbl',
+          name: 'BBL',
+          price: 'Prix sur demande',
+          shortDesc: '',
+          productImages: [new URL('../../bbl product/BBL1.png', import.meta.url).href],
+        },
+        {
+          slug: 'gumies',
+          name: 'Gumies',
+          price: 'Prix sur demande',
+          shortDesc: '',
+          productImages: [new URL('../../Images gumies/i1.png', import.meta.url).href],
         },
       ];
       setProducts(mockProducts);

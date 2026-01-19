@@ -1,8 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../api';
 
-function CODForm({ productSlug }) {
-  const [quantity, setQuantity] = useState(1);
+function CODForm({ productSlug, offers }) {
+  const normalizedSlug = (productSlug || '').toLowerCase();
+  const isAltProduct = normalizedSlug && normalizedSlug !== 'hismile';
+  const themeColor = isAltProduct ? '#db2777' : '#6B21A8';
+  const themeShadow = isAltProduct ? '0 10px 25px rgba(219, 39, 119, 0.4)' : '0 10px 25px rgba(107, 33, 168, 0.4)';
+  const focusClasses = isAltProduct ? 'focus:ring-pink-500 focus:border-pink-500' : 'focus:ring-primary-500 focus:border-primary-500';
+  const defaultOffers = [
+    { qty: 1, label: '1 Produit - 9,900 FCFA', priceValue: 9900 },
+    { qty: 2, label: '2 Produits - 14,000 FCFA', priceValue: 14000 },
+  ];
+  const availableOffers = Array.isArray(offers) && offers.length > 0 ? offers : defaultOffers;
+  const [quantity, setQuantity] = useState(availableOffers[0]?.qty || 1);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -12,36 +22,31 @@ function CODForm({ productSlug }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
 
-  // Calcul du prix selon la quantité
-  const getPrice = () => {
-    if (quantity === 1) return '9,900 FCFA';
-    if (quantity === 2) return '14,000 FCFA';
-    return `${(quantity * 9900).toLocaleString('fr-FR')} FCFA`;
+  const selectedOffer =
+    availableOffers.find((offer) => offer.qty === quantity) || availableOffers[0];
+
+  const getProductName = () => {
+    if (normalizedSlug === 'hismile') return 'Hismile - Sérum blanchissant dents';
+    if (normalizedSlug) return normalizedSlug.toUpperCase();
+    return 'Produit';
   };
 
-  const getPricePerUnit = () => {
-    if (quantity === 1) return '9,900 FCFA';
-    if (quantity === 2) return '7,000 FCFA par unité';
-    return `${(14000 / 2).toLocaleString('fr-FR')} FCFA par unité`;
-  };
+  useEffect(() => {
+    if (!availableOffers.find((offer) => offer.qty === quantity)) {
+      setQuantity(availableOffers[0]?.qty || 1);
+    }
+  }, [availableOffers, quantity]);
 
   const handleChange = (e) => {
     // Meta Pixel - InitiateCheckout quand l'utilisateur commence à remplir le formulaire
     if (!formData.name && !formData.phone && !formData.city && e.target.value) {
       if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-        let checkoutValue = 0;
-        if (quantity === 1) {
-          checkoutValue = 9900;
-        } else if (quantity === 2) {
-          checkoutValue = 14000;
-        } else {
-          checkoutValue = quantity * 9900;
-        }
+        const checkoutValue = selectedOffer?.priceValue || 0;
 
         window.fbq('track', 'InitiateCheckout', {
           content_ids: [productSlug],
           content_type: 'product',
-          content_name: 'Hismile - Sérum blanchissant dents',
+          content_name: getProductName(),
           value: checkoutValue,
           currency: 'XAF',
           num_items: quantity,
@@ -71,14 +76,7 @@ function CODForm({ productSlug }) {
 
       if (response.data.success) {
         // Calculer la valeur réelle en XAF pour Meta Pixel
-        let purchaseValue = 0;
-        if (quantity === 1) {
-          purchaseValue = 9900;
-        } else if (quantity === 2) {
-          purchaseValue = 14000;
-        } else {
-          purchaseValue = quantity * 9900;
-        }
+        const purchaseValue = selectedOffer?.priceValue || 0;
 
         // Meta Pixel - Purchase et Lead après succès de la commande
         if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
@@ -86,7 +84,7 @@ function CODForm({ productSlug }) {
           window.fbq('track', 'Purchase', {
             content_ids: [productSlug],
             content_type: 'product',
-            content_name: 'Hismile - Sérum blanchissant dents',
+            content_name: getProductName(),
             value: purchaseValue,
             currency: 'XAF',
             num_items: quantity,
@@ -94,7 +92,7 @@ function CODForm({ productSlug }) {
 
           // Événement Lead pour le tracking de leads
           window.fbq('track', 'Lead', {
-            content_name: 'Hismile - Sérum blanchissant dents',
+            content_name: getProductName(),
             content_category: 'Beauty & Health',
             value: purchaseValue,
             currency: 'XAF',
@@ -102,7 +100,7 @@ function CODForm({ productSlug }) {
         }
 
         setSuccess(true);
-        setQuantity(1);
+        setQuantity(availableOffers[0]?.qty || 1);
         setFormData({
           name: '',
           phone: '',
@@ -155,7 +153,7 @@ function CODForm({ productSlug }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 relative">
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
           {error}
@@ -176,30 +174,19 @@ function CODForm({ productSlug }) {
         </label>
         <div className="flex flex-col gap-3">
           {/* Offre 1 */}
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="radio"
-              name="quantity"
-              value="1"
-              checked={quantity === 1}
-              onChange={(e) => setQuantity(parseInt(e.target.value))}
-              className="w-5 h-5 text-primary-600"
-            />
-            <span className="text-gray-900 text-lg font-bold">1 Produit - 9,900 FCFA</span>
-          </label>
-
-          {/* Offre 2 */}
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="radio"
-              name="quantity"
-              value="2"
-              checked={quantity === 2}
-              onChange={(e) => setQuantity(parseInt(e.target.value))}
-              className="w-5 h-5 text-primary-600"
-            />
-            <span className="text-gray-900 text-lg font-bold">2 Produits - 14,000 FCFA</span>
-          </label>
+          {availableOffers.map((offer) => (
+            <label key={offer.qty} className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="quantity"
+                value={offer.qty}
+                checked={quantity === offer.qty}
+                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                className={isAltProduct ? 'w-5 h-5 text-pink-600' : 'w-5 h-5 text-primary-600'}
+              />
+              <span className="text-gray-900 text-lg font-bold">{offer.label}</span>
+            </label>
+          ))}
         </div>
       </div>
 
@@ -211,7 +198,7 @@ function CODForm({ productSlug }) {
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          className={`w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 ${focusClasses}`}
           placeholder="Nom"
         />
       </div>
@@ -224,7 +211,7 @@ function CODForm({ productSlug }) {
           value={formData.city}
           onChange={handleChange}
           required
-          className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          className={`w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 ${focusClasses}`}
           placeholder="Ville"
         />
       </div>
@@ -237,45 +224,40 @@ function CODForm({ productSlug }) {
           value={formData.phone}
           onChange={handleChange}
           required
-          className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          className={`w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 ${focusClasses}`}
           placeholder="Téléphone"
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full text-white px-8 py-4 rounded-lg font-bold text-lg hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-        style={{ 
-          backgroundColor: '#6B21A8',
-          boxShadow: '0 10px 25px rgba(107, 33, 168, 0.4)'
-        }}
-        onClick={() => {
-          // Calculer la valeur réelle en XAF pour Meta Pixel
-          let cartValue = 0;
-          if (quantity === 1) {
-            cartValue = 9900;
-          } else if (quantity === 2) {
-            cartValue = 14000;
-          } else {
-            cartValue = quantity * 9900;
-          }
+      <div className="relative h-14">
+        <button
+          type="submit"
+          disabled={loading}
+          className="absolute left-0 text-white px-8 py-4 rounded-lg font-bold text-lg hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          style={{ 
+            backgroundColor: themeColor,
+            boxShadow: themeShadow
+          }}
+          onClick={() => {
+            // Calculer la valeur réelle en XAF pour Meta Pixel
+            const cartValue = selectedOffer?.priceValue || 0;
 
-          // Meta Pixel - AddToCart lors du clic sur le bouton Commander
-          if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-            window.fbq('track', 'AddToCart', {
-              content_ids: [productSlug],
-              content_type: 'product',
-              content_name: 'Hismile - Sérum blanchissant dents',
-              value: cartValue,
-              currency: 'XAF',
-              quantity: quantity,
-            });
-          }
-        }}
-      >
-        {loading ? 'Traitement...' : 'Commandez maintenant'}
-      </button>
+            // Meta Pixel - AddToCart lors du clic sur le bouton Commander
+            if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+              window.fbq('track', 'AddToCart', {
+                content_ids: [productSlug],
+                content_type: 'product',
+                content_name: getProductName(),
+                value: cartValue,
+                currency: 'XAF',
+                quantity: quantity,
+              });
+            }
+          }}
+        >
+          {loading ? 'Traitement...' : 'Commandez maintenant'}
+        </button>
+      </div>
     </form>
   );
 }
