@@ -154,4 +154,7 @@ L'interface est entièrement responsive et optimisée pour mobile.
 - Clé admin requise pour accéder au dashboard
 - Validation des données côté serveur
 - Gestion d'erreurs complète
+- 
+rollback trigger
+
 
