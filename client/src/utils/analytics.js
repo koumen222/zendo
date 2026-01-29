@@ -1,4 +1,4 @@
-import { api } from './api';
+import api from '../api';
 
 const isProduction = import.meta.env.PROD; // Désactive le tracking en production
 let hasUserInteracted = false;
