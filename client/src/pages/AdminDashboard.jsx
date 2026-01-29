@@ -34,12 +34,12 @@ function AdminDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      // Par défaut, charger toutes les commandes (all=true) pour voir toutes les données de la BD
+      // Par défaut, charger toutes les commandes (all=true + includeSeed=true) pour voir toutes les données de la BD
       const params = rangeStart || rangeEnd 
-        ? { startDate: rangeStart, endDate: rangeEnd } 
+        ? { startDate: rangeStart, endDate: rangeEnd, includeSeed: 'true' } 
         : days === 365 
-          ? { days: 365 }
-          : { all: 'true' };
+          ? { days: 365, includeSeed: 'true' }
+          : { all: 'true', includeSeed: 'true' };
       const response = await api.get('/api/admin/stats', {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
