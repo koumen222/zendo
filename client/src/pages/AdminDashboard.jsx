@@ -52,18 +52,30 @@ function AdminDashboard() {
     }
   };
 
+  const getEffectiveDateRange = () => {
+    if (rangeStart || rangeEnd) {
+      return { startDate: rangeStart, endDate: rangeEnd };
+    }
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+    const start = new Date(end);
+    start.setDate(start.getDate() - Math.max(days, 1) + 1);
+    start.setHours(0, 0, 0, 0);
+    return {
+      startDate: formatDateInput(start),
+      endDate: formatDateInput(end),
+    };
+  };
+
   const fetchRecentOrders = async () => {
     try {
+      const { startDate, endDate } = getEffectiveDateRange();
       const params = {
         limit: 5,
         sort: '-createdAt',
+        ...(startDate && { startDate }),
+        ...(endDate && { endDate }),
       };
-      if (rangeStart) {
-        params.startDate = rangeStart;
-      }
-      if (rangeEnd) {
-        params.endDate = rangeEnd;
-      }
 
       const response = await api.get('/api/admin/orders', {
         headers: {
