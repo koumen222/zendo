@@ -34,19 +34,38 @@ function AdminDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
+      // Par défaut, charger toutes les commandes (all=true) pour voir toutes les données de la BD
+      const params = rangeStart || rangeEnd 
+        ? { startDate: rangeStart, endDate: rangeEnd } 
+        : days === 365 
+          ? { days: 365 }
+          : { all: 'true' };
       const response = await api.get('/api/admin/stats', {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
         },
-        params: rangeStart || rangeEnd ? { startDate: rangeStart, endDate: rangeEnd } : { days: days },
+        params,
       });
 
-      if (response.data.success) {
-        setStats(response.data.stats);
+      if (response.data?.success && response.data?.stats) {
+        const statsData = response.data.stats;
+        console.log('📊 Stats chargées depuis la BD:', {
+          visites: statsData.visits?.total || 0,
+          commandes: statsData.orders?.total || 0,
+          CA: statsData.revenue?.total || 0,
+          clients: statsData.customers || 0,
+          enAttente: statsData.orders?.pending || 0,
+        });
+        setStats(statsData);
+      } else {
+        console.warn('⚠️ Réponse stats invalide:', response.data);
       }
     } catch (error) {
-      console.error('Error fetching stats:', error);
-      // En cas d'erreur, garder les valeurs par défaut (0)
+      console.error('❌ Error fetching stats:', error);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', error.response.data);
+      }
     } finally {
       setLoading(false);
     }
@@ -316,7 +335,7 @@ function AdminDashboard() {
                   <div className="border-r border-gray-200 pr-6 last:border-r-0">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm text-gray-600">Ventes totales</p>
-                      {stats.revenue.change !== 0 && (
+                      {stats.revenue?.change !== 0 && (
                         <div className={`flex items-center gap-1 text-xs font-medium ${getChangeColor(stats.revenue.change)}`}>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={stats.revenue.change > 0 ? "M5 10l7-7m0 0l7 7m-7-7v18" : "M19 14l-7 7m0 0l-7-7m7 7V3"} />
@@ -325,9 +344,12 @@ function AdminDashboard() {
                         </div>
                       )}
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">{formatPrice(stats.revenue?.total || 0)}</p>
+                    <p className="text-2xl font-bold text-gray-900">{formatPrice(stats.revenue?.total ?? 0)}</p>
                     {stats.revenue?.total >= 1000000 && (
                       <p className="text-xs text-gray-500 mt-1">{(stats.revenue.total / 1000000).toFixed(1)} M FCFA</p>
+                    )}
+                    {(!stats.revenue?.total || stats.revenue.total === 0) && (
+                      <p className="text-xs text-gray-400 mt-1">Depuis la BD</p>
                     )}
                   </div>
 
@@ -335,7 +357,7 @@ function AdminDashboard() {
                   <div className="border-r border-gray-200 pr-6 last:border-r-0">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm text-gray-600">Commandes</p>
-                      {stats.orders.change !== 0 && (
+                      {stats.orders?.change !== 0 && (
                         <div className={`flex items-center gap-1 text-xs font-medium ${getChangeColor(stats.orders.change)}`}>
                           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={stats.orders.change > 0 ? "M5 10l7-7m0 0l7 7m-7-7v18" : "M19 14l-7 7m0 0l-7-7m7 7V3"} />
@@ -344,11 +366,14 @@ function AdminDashboard() {
                         </div>
                       )}
                     </div>
-                    <p className="text-2xl font-bold text-gray-900 mb-1">{stats.orders.total || 0}</p>
-                    {stats.orders.pending > 0 && (
+                    <p className="text-2xl font-bold text-gray-900 mb-1">{stats.orders?.total ?? 0}</p>
+                    {stats.orders?.pending > 0 && (
                       <p className="text-xs text-orange-600 font-medium mb-2">{stats.orders.pending} en attente</p>
                     )}
-                    {stats.orders.sparkline && stats.orders.sparkline.length > 0 && (
+                    {(!stats.orders?.total || stats.orders.total === 0) && (
+                      <p className="text-xs text-gray-400 mb-2">Depuis la BD</p>
+                    )}
+                    {stats.orders?.sparkline && stats.orders.sparkline.length > 0 && (
                       <div className="h-8 flex items-end gap-0.5">
                         {stats.orders.sparkline.map((value, i) => {
                           const maxValue = Math.max(...stats.orders.sparkline.filter(v => v > 0), 1);
@@ -370,10 +395,13 @@ function AdminDashboard() {
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm text-gray-600">Taux de conversion</p>
                     </div>
-                    <p className="text-2xl font-bold text-gray-900 mb-2">
-                      {(stats.conversionRate || 0) > 0 ? `${stats.conversionRate}%` : '—'}
+                    <p className="text-2xl font-bold text-gray-900 mb-1">
+                      {(stats.conversionRate ?? 0) > 0 ? `${stats.conversionRate}%` : '0%'}
                     </p>
-                    {(stats.conversionRate || 0) > 0 && (
+                    {(!stats.conversionRate || stats.conversionRate === 0) && (
+                      <p className="text-xs text-gray-400 mb-2">Depuis la BD</p>
+                    )}
+                    {(stats.conversionRate ?? 0) > 0 && (
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-blue-500 transition-all"
@@ -381,7 +409,7 @@ function AdminDashboard() {
                         />
                       </div>
                     )}
-                    {(stats.conversionRate || 0) === 0 && (
+                    {(!stats.conversionRate || stats.conversionRate === 0) && (
                       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div className="h-full bg-gray-300" style={{ width: '0%' }} />
                       </div>
@@ -529,31 +557,76 @@ function AdminDashboard() {
                 <div className="p-6" />
               ) : (
                 <div className="divide-y divide-gray-100">
-                  {recentOrders.map((order) => (
-                    <Link
-                      key={order._id}
-                      to="/admin/orders"
-                      className="block p-4 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-700">
-                              #{order._id?.slice(-4).toUpperCase()}
+                  {recentOrders.map((order) => {
+                    const statusColors = {
+                      new: 'bg-blue-100 text-blue-800',
+                      pending: 'bg-yellow-100 text-yellow-800',
+                      called: 'bg-purple-100 text-purple-800',
+                      processing: 'bg-indigo-100 text-indigo-800',
+                      in_delivery: 'bg-orange-100 text-orange-800',
+                      shipped: 'bg-cyan-100 text-cyan-800',
+                      delivered: 'bg-green-100 text-green-800',
+                      cancelled: 'bg-red-100 text-red-800',
+                      rescheduled: 'bg-gray-100 text-gray-800',
+                    };
+                    const statusLabels = {
+                      new: 'Nouvelle',
+                      pending: 'En attente',
+                      called: 'Appelée',
+                      processing: 'Traitement',
+                      in_delivery: 'Livraison',
+                      shipped: 'Expédiée',
+                      delivered: 'Livrée',
+                      cancelled: 'Annulée',
+                      rescheduled: 'Reportée',
+                    };
+                    return (
+                      <Link
+                        key={order._id}
+                        to="/admin/orders"
+                        className="block p-4 hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-700">
+                                #{order._id?.slice(-4).toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">{order.name}</p>
+                                <div className="flex items-center gap-2 mt-1">
+                                  <p className="text-xs text-gray-500">{getFirstWord(order.productName)}</p>
+                                  {order.city && (
+                                    <>
+                                      <span className="text-xs text-gray-400">•</span>
+                                      <p className="text-xs text-gray-500">{order.city}</p>
+                                    </>
+                                  )}
+                                  {order.quantity > 1 && (
+                                    <>
+                                      <span className="text-xs text-gray-400">•</span>
+                                      <p className="text-xs text-gray-500">Qty: {order.quantity}</p>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 truncate">{order.name}</p>
-                              <p className="text-xs text-gray-500">{getFirstWord(order.productName)}</p>
+                          </div>
+                          <div className="text-right ml-4">
+                            <p className="text-sm font-semibold text-gray-900">{formatPrice(order.totalPrice || order.productPrice)}</p>
+                            <div className="flex items-center justify-end gap-2 mt-1">
+                              {order.status && (
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[order.status] || 'bg-gray-100 text-gray-800'}`}>
+                                  {statusLabels[order.status] || order.status}
+                                </span>
+                              )}
+                              <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
                             </div>
                           </div>
                         </div>
-                        <div className="text-right ml-4">
-                          <p className="text-sm font-semibold text-gray-900">{formatPrice(order.totalPrice || order.productPrice)}</p>
-                          <p className="text-xs text-gray-500">{formatDate(order.createdAt)}</p>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
