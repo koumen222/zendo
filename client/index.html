@@ -9,44 +9,81 @@
 
     <!-- Preload images critiques pour chargement ultra-rapide -->
     <link rel="preload" as="image" href="/ChatGPT Image 13 janv. 2026, 17_11_57.png" />
-    <link rel="preload" as="image" href="/images/ChatGPT Image 13 janv. 2026, 17_25_05.png" />
+    <link rel="preconnect" href="https://pub-8ff71761d07245c49c162274615448e8.r2.dev" />
 
     <!-- Meta Pixel Code - Chargé après le chargement de la page -->
     <script>
-      // Fonction pour initialiser Meta Pixel après chargement
-      function initMetaPixel() {
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src='https://connect.facebook.net/en_US/fbevents.js';
-        s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script');
-        fbq('init', '1615349376501958');
-        fbq('track', 'PageView');
-      }
-      
-      // Attendre que le DOM soit prêt et que les images critiques soient chargées
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-          // Délai supplémentaire pour ne pas bloquer le chargement des images
-          setTimeout(initMetaPixel, 500);
-        });
-      } else {
-        setTimeout(initMetaPixel, 500);
-      }
+      (function () {
+        const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+        const allowTracking = isLocalhost; // Tracking désactivé en production pour prioriser le rendu
+        if (!allowTracking) return;
+
+        let pixelInitialized = false;
+
+        function initMetaPixel() {
+          if (pixelInitialized) return;
+          pixelInitialized = true;
+
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src='https://connect.facebook.net/en_US/fbevents.js';
+          s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script');
+
+          const script = document.querySelector('script[src="https://connect.facebook.net/en_US/fbevents.js"]');
+          const scriptTimeout = setTimeout(function () {
+            if (script && script.parentNode) {
+              script.parentNode.removeChild(script);
+            }
+          }, 3000); // Fallback si le script externe est trop lent
+
+          if (script) {
+            script.onload = function () { clearTimeout(scriptTimeout); };
+            script.onerror = function () { clearTimeout(scriptTimeout); };
+          }
+
+          fbq('init', '1615349376501958');
+          fbq('track', 'PageView');
+        }
+
+        function deferUntilInteraction(callback) {
+          let fired = false;
+          const trigger = function () {
+            if (fired) return;
+            fired = true;
+            window.removeEventListener('pointerdown', trigger);
+            window.removeEventListener('keydown', trigger);
+            window.removeEventListener('scroll', trigger);
+            window.removeEventListener('touchstart', trigger);
+            callback();
+          };
+
+          window.addEventListener('pointerdown', trigger, { once: true, passive: true });
+          window.addEventListener('keydown', trigger, { once: true, passive: true });
+          window.addEventListener('scroll', trigger, { once: true, passive: true });
+          window.addEventListener('touchstart', trigger, { once: true, passive: true });
+
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(trigger, { timeout: 4000 });
+          } else {
+            setTimeout(trigger, 4000);
+          }
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () {
+            deferUntilInteraction(initMetaPixel);
+          });
+        } else {
+          deferUntilInteraction(initMetaPixel);
+        }
+      })();
     </script>
   </head>
   <body>
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style="display:none"
-        src="https://www.facebook.com/tr?id=1615349376501958&ev=PageView&noscript=1"
-      />
-    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

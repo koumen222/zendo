@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import CODForm from '../components/CODForm';
 
 const OptimizedImage = ({ src, alt, loading = 'lazy', fetchPriority, className, style }) => (
@@ -19,6 +19,7 @@ const BBL_IMAGES = [
   new URL('../../bbl product/BBL2.png', import.meta.url).href,
   new URL('../../bbl product/BLL3.png', import.meta.url).href,
 ];
+const EMPTY_IMAGES = [];
 const GUMIES_IMAGES = [
   new URL('../../Images gumies/i1.png', import.meta.url).href,
   new URL('../../Images gumies/i2.png', import.meta.url).href,
@@ -40,11 +41,53 @@ function ProductPage() {
   const { slug } = useParams();
   const isBblProduct = (slug || '').toLowerCase() === 'bbl';
   const isGumiesProduct = (slug || '').toLowerCase() === 'gumies';
-  const galleryImages = isBblProduct ? BBL_IMAGES : isGumiesProduct ? GUMIES_IMAGES : [];
+  const galleryImages = isBblProduct ? BBL_IMAGES : isGumiesProduct ? GUMIES_IMAGES : EMPTY_IMAGES;
   const formBgColor =
     isBblProduct || isGumiesProduct ? 'rgba(219, 39, 119, 0.15)' : 'rgba(139, 92, 246, 0.15)';
-  const [error, setError] = useState(null);
-  const [productData, setProductData] = useState(null);
+  const allowTracking = !import.meta.env.PROD; // Tracking désactivé en production
+  // Mémoïse les données pour éviter des re-renders inutiles
+  const productData = useMemo(() => {
+    if (isBblProduct || isGumiesProduct) {
+      return {
+        name: isGumiesProduct ? 'Gumies' : 'BBL',
+        price: 'Prix sur demande',
+        images: galleryImages,
+        description: '',
+        shortDesc: '',
+        benefits: [],
+        usage: '',
+        deliveryInfo: '',
+        reviews: [],
+        stock: 'En stock',
+        rating: 0,
+        reviewCount: 0,
+        sections: [],
+        faq: [],
+        whyItWorks: null,
+        guarantee: '',
+      };
+    }
+
+    // Données hardcodées pour Hismile uniquement
+    return {
+      name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
+      price: 'Prix sur demande',
+      images: [],
+      description: '',
+      shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
+      benefits: [],
+      usage: '',
+      deliveryInfo: '',
+      reviews: [],
+      stock: 'En stock',
+      rating: 4.8,
+      reviewCount: 252,
+      sections: [],
+      faq: [],
+      whyItWorks: null,
+      guarantee: 'Il est recommandé par les dentistes du Cameroun et du monde entier.',
+    };
+  }, [galleryImages, isBblProduct, isGumiesProduct]);
 
   // Fonction pour scroller vers le formulaire avec effet visuel
   const scrollToForm = () => {
@@ -70,71 +113,19 @@ function ProductPage() {
   };
 
   useEffect(() => {
-    if (isBblProduct || isGumiesProduct) {
-      setProductData({
-        name: isGumiesProduct ? 'Gumies' : 'BBL',
-        price: 'Prix sur demande',
-        images: galleryImages,
-        description: '',
-        shortDesc: '',
-        benefits: [],
-        usage: '',
-        deliveryInfo: '',
-        reviews: [],
-        stock: 'En stock',
-        rating: 0,
-        reviewCount: 0,
-        sections: [],
-        faq: [],
-        whyItWorks: null,
-        guarantee: '',
-      });
-    } else {
-      // Données hardcodées pour Hismile uniquement
-      setProductData({
-        name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
-        price: 'Prix sur demande',
-        images: [],
-        description: '',
-        shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
-        benefits: [],
-        usage: '',
-        deliveryInfo: '',
-        reviews: [],
-        stock: 'En stock',
-        rating: 4.8,
-        reviewCount: 252,
-        sections: [],
-        faq: [],
-        whyItWorks: null,
-        guarantee: 'Il est recommandé par les dentistes du Cameroun et du monde entier.',
-      });
+    if (!allowTracking || isBblProduct || isGumiesProduct) {
+      return;
     }
 
-    // Meta Pixel - ViewContent pour la page produit
-    if (!isBblProduct && !isGumiesProduct) {
-      if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-        window.fbq('track', 'ViewContent', {
-          content_ids: [slug],
-          content_type: 'product',
-          content_name: 'Hismile - Sérum blanchissant dents',
-        });
-      }
+    // Meta Pixel - ViewContent pour la page produit (désactivé en production)
+    if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+      window.fbq('track', 'ViewContent', {
+        content_ids: [slug],
+        content_type: 'product',
+        content_name: 'Hismile - Sérum blanchissant dents',
+      });
     }
-  }, [slug, isBblProduct, isGumiesProduct, galleryImages]);
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link to="/" className="text-primary-600 hover:underline">
-            Retour à l'accueil
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  }, [allowTracking, isBblProduct, isGumiesProduct, slug]);
 
   if (isBblProduct || isGumiesProduct) {
     return (
@@ -252,14 +243,13 @@ function ProductPage() {
         />
       </div>
       
-      {/* Deuxième image - Chargement prioritaire */}
+      {/* Deuxième image - Lazy loading pour priorité au rendu initial */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
         <OptimizedImage
           src="https://pub-8ff71761d07245c49c162274615448e8.r2.dev/hismile%20compresse%202.webp"
           alt={productData?.name || 'Produit Zendo'}
           className="w-full h-auto object-top"
-          loading="eager"
-          fetchPriority="high"
+          loading="lazy"
           style={{
             width: '100%',
             maxWidth: '1080px',
