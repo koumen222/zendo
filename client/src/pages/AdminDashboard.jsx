@@ -282,8 +282,7 @@ function AdminDashboard() {
                   <div className="flex-1">
                     <p className="text-sm font-medium text-blue-900 mb-1">Aucune donnée disponible</p>
                     <p className="text-xs text-blue-700">
-                      Les statistiques apparaîtront automatiquement lorsque des visiteurs utiliseront le site et passeront des commandes.
-                      Pour générer des données de test, exécutez : <code className="bg-blue-100 px-1 rounded">npm run seed:data</code>
+                      Les statistiques sont chargées dynamiquement depuis la base de données (visites et commandes réelles). Les données de seed sont exclues. Elles apparaîtront lorsque des visiteurs utiliseront le site et passeront des commandes.
                     </p>
                   </div>
                 </div>

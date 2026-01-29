@@ -147,6 +147,16 @@ function ProductPage() {
                 display: 'block',
               }}
             />
+            <div className="flex justify-center py-6">
+              <button
+                type="button"
+                onClick={scrollToForm}
+                className="text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105"
+                style={{ backgroundColor: '#db2777', boxShadow: '0 4px 14px rgba(219, 39, 119, 0.4)' }}
+              >
+                Commander maintenant
+              </button>
+            </div>
           </div>
         ))}
 
@@ -175,6 +185,16 @@ function ProductPage() {
                 display: 'block',
               }}
             />
+            <div className="flex justify-center py-6">
+              <button
+                type="button"
+                onClick={scrollToForm}
+                className="text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105"
+                style={{ backgroundColor: '#db2777', boxShadow: '0 4px 14px rgba(219, 39, 119, 0.4)' }}
+              >
+                Commander maintenant
+              </button>
+            </div>
           </div>
         )}
         {isGumiesProduct && (
@@ -241,114 +261,101 @@ function ProductPage() {
             display: 'block',
           }}
         />
+        <div className="flex justify-center py-6">
+          <button type="button" onClick={scrollToForm} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105" style={{ boxShadow: '0 4px 14px rgba(107, 33, 168, 0.4)' }}>
+            Commander maintenant
+          </button>
+        </div>
       </div>
-      
-      {/* Deuxième image - Lazy loading pour priorité au rendu initial */}
+      {/* Deuxième image */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
         <OptimizedImage
           src="https://pub-8ff71761d07245c49c162274615448e8.r2.dev/hismile%20compresse%202.webp"
           alt={productData?.name || 'Produit Zendo'}
           className="w-full h-auto object-top"
           loading="lazy"
-          style={{
-            width: '100%',
-            maxWidth: '1080px',
-            objectFit: 'cover',
-            objectPosition: 'top',
-            margin: '0 auto',
-            display: 'block',
-          }}
+          style={{ width: '100%', maxWidth: '1080px', objectFit: 'cover', objectPosition: 'top', margin: '0 auto', display: 'block' }}
         />
+        <div className="flex justify-center py-6">
+          <button type="button" onClick={scrollToForm} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105" style={{ boxShadow: '0 4px 14px rgba(107, 33, 168, 0.4)' }}>
+            Commander maintenant
+          </button>
+        </div>
       </div>
-      
-      {/* Troisième image - Lazy loading pour les images suivantes */}
+      {/* Troisième image */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
         <OptimizedImage
           src="https://pub-8ff71761d07245c49c162274615448e8.r2.dev/image%20compress3.jpg"
           alt={productData?.name || 'Produit Zendo'}
           className="w-full h-auto object-top"
           loading="lazy"
-          style={{
-            width: '100%',
-            maxWidth: '1080px',
-            objectFit: 'cover',
-            objectPosition: 'top',
-            margin: '0 auto',
-            display: 'block',
-          }}
+          style={{ width: '100%', maxWidth: '1080px', objectFit: 'cover', objectPosition: 'top', margin: '0 auto', display: 'block' }}
         />
+        <div className="flex justify-center py-6">
+          <button type="button" onClick={scrollToForm} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105" style={{ boxShadow: '0 4px 14px rgba(107, 33, 168, 0.4)' }}>
+            Commander maintenant
+          </button>
+        </div>
       </div>
-      
-      {/* Quatrième image - Lazy loading */}
+      {/* Quatrième image */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
         <OptimizedImage
           src="https://pub-8ff71761d07245c49c162274615448e8.r2.dev/image%20compress4.jpg"
           alt={productData?.name || 'Produit Zendo'}
           className="w-full h-auto object-top"
           loading="lazy"
-          style={{
-            width: '100%',
-            maxWidth: '1080px',
-            objectFit: 'cover',
-            objectPosition: 'top',
-            margin: '0 auto',
-            display: 'block',
-          }}
+          style={{ width: '100%', maxWidth: '1080px', objectFit: 'cover', objectPosition: 'top', margin: '0 auto', display: 'block' }}
         />
+        <div className="flex justify-center py-6">
+          <button type="button" onClick={scrollToForm} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105" style={{ boxShadow: '0 4px 14px rgba(107, 33, 168, 0.4)' }}>
+            Commander maintenant
+          </button>
+        </div>
       </div>
-      
-      {/* Cinquième image - Avis clients - Lazy loading */}
+      {/* Cinquième image - Avis clients */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
         <OptimizedImage
           src="https://pub-8ff71761d07245c49c162274615448e8.r2.dev/image%20compress5.jpg"
           alt={productData?.name || 'Produit Zendo'}
           className="w-full h-auto object-top"
           loading="lazy"
-          style={{
-            width: '100%',
-            maxWidth: '1080px',
-            objectFit: 'cover',
-            objectPosition: 'top',
-            margin: '0 auto',
-            display: 'block',
-          }}
+          style={{ width: '100%', maxWidth: '1080px', objectFit: 'cover', objectPosition: 'top', margin: '0 auto', display: 'block' }}
         />
+        <div className="flex justify-center py-6">
+          <button type="button" onClick={scrollToForm} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105" style={{ boxShadow: '0 4px 14px rgba(107, 33, 168, 0.4)' }}>
+            Commander maintenant
+          </button>
+        </div>
       </div>
-      
-      {/* Sixième image - Offres - Lazy loading */}
+      {/* Sixième image - Offres */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
         <OptimizedImage
           src="https://pub-8ff71761d07245c49c162274615448e8.r2.dev/image%20comoress6.jpg"
           alt={productData?.name || 'Produit Zendo'}
           className="w-full h-auto object-top"
           loading="lazy"
-          style={{
-            width: '100%',
-            maxWidth: '1080px',
-            objectFit: 'cover',
-            objectPosition: 'top',
-            margin: '0 auto',
-            display: 'block',
-          }}
+          style={{ width: '100%', maxWidth: '1080px', objectFit: 'cover', objectPosition: 'top', margin: '0 auto', display: 'block' }}
         />
+        <div className="flex justify-center py-6">
+          <button type="button" onClick={scrollToForm} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105" style={{ boxShadow: '0 4px 14px rgba(107, 33, 168, 0.4)' }}>
+            Commander maintenant
+          </button>
+        </div>
       </div>
-
-      {/* Image recommandation experte - Lazy loading */}
+      {/* Image recommandation experte */}
       <div className="relative w-full max-w-4xl mx-auto bg-white">
         <OptimizedImage
           src="https://pub-8ff71761d07245c49c162274615448e8.r2.dev/image%20compress7.jpg"
           alt={productData?.name || 'Produit Zendo'}
           className="w-full h-auto object-top"
           loading="lazy"
-          style={{
-            width: '100%',
-            maxWidth: '1080px',
-            objectFit: 'cover',
-            objectPosition: 'top',
-            margin: '0 auto',
-            display: 'block',
-          }}
+          style={{ width: '100%', maxWidth: '1080px', objectFit: 'cover', objectPosition: 'top', margin: '0 auto', display: 'block' }}
         />
+        <div className="flex justify-center py-6">
+          <button type="button" onClick={scrollToForm} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all duration-300 hover:scale-105" style={{ boxShadow: '0 4px 14px rgba(107, 33, 168, 0.4)' }}>
+            Commander maintenant
+          </button>
+        </div>
       </div>
 
       {/* CTA Section - Order Form */}
