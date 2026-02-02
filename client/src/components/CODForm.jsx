@@ -17,6 +17,7 @@ function CODForm({ productSlug, offers }) {
     name: '',
     phone: '',
     city: '',
+    quarter: '',
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -105,6 +106,7 @@ function CODForm({ productSlug, offers }) {
           name: '',
           phone: '',
           city: '',
+          quarter: '',
         });
         // Le message WhatsApp est envoyé automatiquement par le backend
       }
@@ -132,7 +134,7 @@ function CODForm({ productSlug, offers }) {
           En attendant, vous pouvez suivre votre commande via WhatsApp :
         </p>
         <a
-          href="https://wa.me/237676463725?text=Bonjour, je souhaite suivre ma commande au {formData.name}"
+          href={`https://wa.me/237676463725?text=${encodeURIComponent(`Bonjour, je souhaite suivre ma commande\n\nNom: ${formData.name}\nTéléphone: ${formData.phone}\nVille: ${formData.city}\nQuartier: ${formData.quarter}\nProduit: ${selectedOffer?.label || 'Produit'}\nQuantité: ${quantity}\nPrix: ${selectedOffer?.priceValue ? selectedOffer.priceValue.toLocaleString() + ' FCFA' : selectedOffer?.label || 'Prix sur demande'}`)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-green-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-600 transition-colors mb-4"
@@ -213,6 +215,19 @@ function CODForm({ productSlug, offers }) {
           required
           className={`w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 ${focusClasses}`}
           placeholder="Ville"
+        />
+      </div>
+
+      <div>
+        <input
+          type="text"
+          id="quarter"
+          name="quarter"
+          value={formData.quarter}
+          onChange={handleChange}
+          required
+          className={`w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 ${focusClasses}`}
+          placeholder="Quartier"
         />
       </div>
 

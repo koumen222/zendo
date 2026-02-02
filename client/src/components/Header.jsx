@@ -5,7 +5,35 @@ function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white shadow-md sticky top-0 z-50">
+    <>
+      {/* Cameroon Banner */}
+      <div className="bg-red-600 text-white py-2 px-4">
+        <div className="container mx-auto">
+          <div className="flex items-center justify-center gap-3">
+            <img
+              src="https://flagcdn.com/w160/cm.png"
+              alt="Cameroun"
+              className="w-6 h-4 object-cover rounded"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+            <span className="text-sm sm:text-base font-medium text-center">
+              Disponible partout au Cameroun
+            </span>
+            <img
+              src="https://flagcdn.com/w160/cm.png"
+              alt="Cameroun"
+              className="w-6 h-4 object-cover rounded"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          </div>
+        </div>
+      </div>
+      
+      <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -41,7 +69,7 @@ function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-gray-700 hover:text-primary-600"
+            className="md:hidden p-2 text-gray-700 hover:text-primary-600 bg-white rounded-lg shadow-md"
             aria-label="Menu"
           >
             <svg
@@ -71,7 +99,7 @@ function Header() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t">
+          <div className="md:hidden py-4 border-t bg-white shadow-lg">
             <nav className="flex flex-col space-y-3">
               <Link
                 to="/"
@@ -99,6 +127,7 @@ function Header() {
         )}
       </div>
     </header>
+    </>
   );
 }
 

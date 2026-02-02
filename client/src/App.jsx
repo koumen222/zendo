@@ -5,6 +5,7 @@ import AdminOrdersPage from './pages/AdminOrdersPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProductsPage from './pages/AdminProductsPage';
 import AdminProductNewPage from './pages/AdminProductNewPage';
+import AdminProductEditPage from './pages/AdminProductEditPage';
 import AdminCustomersPage from './pages/AdminCustomersPage';
 import AdminAnalyticsPage from './pages/AdminAnalyticsPage';
 import HomePage from './pages/HomePage';
@@ -38,6 +39,7 @@ function App() {
           <Route path="/admin/orders" element={<AdminOrdersPage />} />
           <Route path="/admin/products" element={<AdminProductsPage />} />
           <Route path="/admin/products/new" element={<AdminProductNewPage />} />
+          <Route path="/admin/products/:slug/edit" element={<AdminProductEditPage />} />
           <Route path="/admin/customers" element={<AdminCustomersPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         </Routes>

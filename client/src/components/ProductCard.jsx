@@ -34,11 +34,26 @@ function ProductCard({ product }) {
         <h3 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-2 group-hover:text-primary-600 transition-colors">
           {getFirstWord(product.name)}
         </h3>
-        <div className="flex items-center justify-between">
-          <span className="text-xl font-bold text-primary-600">
-            {product.price || 'Prix sur demande'}
-          </span>
-          <span className="text-primary-600 group-hover:translate-x-1 transition-transform inline-block">
+        <div className="flex flex-col gap-1">
+          {product.offers?.length > 0 ? (
+            product.offers.map((offer, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <span className="text-sm font-medium text-gray-600">
+                  {offer.qty > 1 && `${offer.qty}x - `}
+                  {offer.label || ''}
+                </span>
+                <span className="text-lg font-bold text-primary-600">
+                  {offer.priceValue ? `${offer.priceValue.toLocaleString()} FCFA` : 'Prix sur demande'}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="flex items-center justify-between">
+              <span className="text-gray-600">Prix sur demande</span>
+              <span className="text-xl font-bold text-primary-600">—</span>
+            </div>
+          )}
+          <span className="text-primary-600 group-hover:translate-x-1 transition-transform inline-block self-end">
             →
           </span>
         </div>

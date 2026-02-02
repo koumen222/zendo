@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 import ProductCard from '../components/ProductCard';
 
 function CataloguePage() {
@@ -9,35 +9,50 @@ function CataloguePage() {
   const [filteredProducts, setFilteredProducts] = useState([]);
 
   useEffect(() => {
-    // Produits Hismile + BBL
-    setTimeout(() => {
-      const mockProducts = [
-        {
-          slug: 'hismile',
-          name: 'Hismile™ – Le Sérum Qui Blanchis tes dents dès le premier jour',
-          price: 'Prix sur demande',
-          shortDesc: 'Sérum correcteur de teinte pour les dents. Effet instantané, sans peroxyde.',
-          productImages: [],
-        },
-        {
-          slug: 'bbl',
-          name: 'BBL',
-          price: 'Prix sur demande',
-          shortDesc: '',
-          productImages: [new URL('../../bbl product/BBL1.png', import.meta.url).href],
-        },
-        {
-          slug: 'gumies',
-          name: 'Gumies',
-          price: 'Prix sur demande',
-          shortDesc: '',
-          productImages: [new URL('../../Images gumies/i1.png', import.meta.url).href],
-        },
-      ];
-      setProducts(mockProducts);
-      setFilteredProducts(mockProducts);
-      setLoading(false);
-    }, 500);
+    const fetchProducts = async () => {
+      try {
+        const response = await api.get('/api/products');
+        if (response.data?.success) {
+          const normalized = (response.data.products || []).map((p) => {
+            // Use frontend images for static products
+            let productImages = p.images || [];
+            if (p.slug === 'bbl') {
+              productImages = [
+                new URL('../../bbl product/BBL1.png', import.meta.url).href,
+                new URL('../../bbl product/BBL2.png', import.meta.url).href,
+                new URL('../../bbl product/BLL3.png', import.meta.url).href,
+              ];
+            } else if (p.slug === 'gumies') {
+              productImages = [
+                new URL('../../Images gumies/i1.png', import.meta.url).href,
+                new URL('../../Images gumies/i2.png', import.meta.url).href,
+                new URL('../../Images gumies/i3.png', import.meta.url).href,
+                new URL('../../Images gumies/i4.png', import.meta.url).href,
+                new URL('../../Images gumies/i5.jpg', import.meta.url).href,
+                new URL('../../Images gumies/i6.png', import.meta.url).href,
+                new URL('../../Images gumies/i7.png', import.meta.url).href,
+                new URL('../../Images gumies/8.png', import.meta.url).href,
+              ];
+            }
+            
+            return {
+              slug: p.slug,
+              name: p.productName,
+              offers: p.offers || [],
+              shortDesc: p.shortDesc || '',
+              productImages,
+            };
+          });
+          setProducts(normalized);
+          setFilteredProducts(normalized);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
   }, []);
 
   useEffect(() => {

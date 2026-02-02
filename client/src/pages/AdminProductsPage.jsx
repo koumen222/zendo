@@ -25,8 +25,12 @@ function AdminProductsPage() {
 
   const formatPrice = (offers) => {
     if (!offers?.length) return '—';
-    const first = offers[0];
-    return first.priceValue ? `${first.priceValue.toLocaleString()} FCFA` : first.label || '—';
+    return offers.map((offer, i) => (
+      <div key={i} className="text-xs">
+        {offer.qty > 1 && `${offer.qty}x - `}
+        {offer.priceValue ? `${offer.priceValue.toLocaleString()} FCFA` : offer.label || '—'}
+      </div>
+    ));
   };
 
   return (
@@ -89,14 +93,22 @@ function AdminProductsPage() {
                       <td className="px-6 py-4 text-sm text-gray-600">{product.slug}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{formatPrice(product.offers)}</td>
                       <td className="px-6 py-4">
-                        <a
-                          href={`/produit/${product.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-600 hover:text-blue-700"
-                        >
-                          Voir
-                        </a>
+                        <div className="flex gap-2">
+                          <Link
+                            to={`/admin/products/${product.slug}/edit`}
+                            className="text-sm text-gray-600 hover:text-gray-700"
+                          >
+                            Modifier
+                          </Link>
+                          <a
+                            href={`/produit/${product.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            Voir
+                          </a>
+                        </div>
                       </td>
                     </tr>
                   ))}
