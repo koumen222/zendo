@@ -106,6 +106,24 @@ function AdminProductEditPage() {
     }));
   };
 
+  const moveImage = (index, direction) => {
+    setForm((prev) => {
+      const newImages = [...prev.images];
+      const newIndex = direction === 'up' ? index - 1 : index + 1;
+      
+      // Check bounds
+      if (newIndex < 0 || newIndex >= newImages.length) return prev;
+      
+      // Swap images
+      [newImages[index], newImages[newIndex]] = [newImages[newIndex], newImages[index]];
+      
+      return {
+        ...prev,
+        images: newImages,
+      };
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -195,10 +213,37 @@ function AdminProductEditPage() {
                 {form.images.map((url, i) => (
                   <div key={i} className="relative group">
                     <img src={url} alt={`Image ${i + 1}`} className="w-full h-32 object-cover rounded-lg" />
+                    
+                    {/* Move up button */}
+                    {i > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => moveImage(i, 'up')}
+                        className="absolute top-1 left-1 bg-blue-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Monter"
+                      >
+                        ↑
+                      </button>
+                    )}
+                    
+                    {/* Move down button */}
+                    {i < form.images.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => moveImage(i, 'down')}
+                        className="absolute top-1 left-8 bg-blue-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Descendre"
+                      >
+                        ↓
+                      </button>
+                    )}
+                    
+                    {/* Delete button */}
                     <button
                       type="button"
                       onClick={() => removeImage(i)}
                       className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Supprimer"
                     >
                       ×
                     </button>
