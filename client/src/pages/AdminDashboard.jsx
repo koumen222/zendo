@@ -15,7 +15,6 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [recentOrders, setRecentOrders] = useState([]);
   const [days, setDays] = useState(30);
-  const [dateFilter, setDateFilter] = useState('');
   const [rangeStart, setRangeStart] = useState('');
   const [rangeEnd, setRangeEnd] = useState('');
   const dateInputRef = useRef(null);
@@ -34,12 +33,15 @@ function AdminDashboard() {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      // Par défaut, charger toutes les commandes (all=true + includeSeed=true) pour voir toutes les données de la BD
-      const params = rangeStart || rangeEnd 
-        ? { startDate: rangeStart, endDate: rangeEnd, includeSeed: 'true' } 
-        : days === 365 
-          ? { days: 365, includeSeed: 'true' }
-          : { all: 'true', includeSeed: 'true' };
+      // Utiliser la période sélectionnée pour les stats
+      const params =
+        days && days > 0
+          ? { days: Math.max(days, 1), includeSeed: 'true' }
+          : {
+              ...(rangeStart && { startDate: rangeStart }),
+              ...(rangeEnd && { endDate: rangeEnd }),
+              includeSeed: 'true',
+            };
       const response = await api.get('/api/admin/stats', {
         headers: {
           'x-admin-key': 'ZENDO_ADMIN_2026',
@@ -113,7 +115,6 @@ function AdminDashboard() {
 
   const handleTimeRangeChange = (newDays) => {
     setDays(newDays);
-    setDateFilter('');
     setRangeStart('');
     setRangeEnd('');
   };
@@ -124,7 +125,6 @@ function AdminDashboard() {
     setDays(0);
     const today = new Date();
     const formatted = formatDateInput(today);
-    setDateFilter(formatted);
     setRangeStart(formatted);
     setRangeEnd(formatted);
   };
@@ -134,25 +134,27 @@ function AdminDashboard() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const formatted = formatDateInput(yesterday);
-    setDateFilter(formatted);
     setRangeStart(formatted);
     setRangeEnd(formatted);
   };
 
-  const handleDateChange = (value) => {
+  const handleRangeStartChange = (value) => {
     setDays(0);
-    setDateFilter(value);
-    if (value) {
-      setRangeStart(value);
+    setRangeStart(value);
+    if (!rangeEnd) {
       setRangeEnd(value);
-    } else {
-      setRangeStart('');
-      setRangeEnd('');
+    }
+  };
+
+  const handleRangeEndChange = (value) => {
+    setDays(0);
+    setRangeEnd(value);
+    if (!rangeStart) {
+      setRangeStart(value);
     }
   };
 
   const handleClearDate = () => {
-    setDateFilter('');
     setRangeStart('');
     setRangeEnd('');
     if (!days || days === 0) {
@@ -182,7 +184,11 @@ function AdminDashboard() {
   };
 
   const getPeriodValue = () => {
-    if (rangeStart && rangeEnd) {
+    if (days === 7) return '7';
+    if (days === 30) return '30';
+    if (days === 90) return '90';
+    if (days === 365) return '365';
+    if (days === 0 && rangeStart && rangeEnd) {
       if (rangeStart === rangeEnd) {
         const today = formatDateInput(new Date());
         const yesterday = formatDateInput(new Date(Date.now() - 86400000));
@@ -192,12 +198,26 @@ function AdminDashboard() {
       }
       return 'custom';
     }
-    if (days === 7) return '7';
-    if (days === 30) return '30';
-    if (days === 90) return '90';
-    if (days === 365) return '365';
     return '30';
   };
+
+  const getPeriodLabel = () => {
+    const { startDate, endDate } = getEffectiveDateRange();
+    if (rangeStart && rangeEnd) {
+      if (rangeStart === rangeEnd) {
+        return `Le ${rangeStart}`;
+      }
+      return `Du ${rangeStart} au ${rangeEnd}`;
+    }
+    const rangeLabel = startDate && endDate ? `Du ${startDate} au ${endDate}` : '';
+    if (days === 7) return `7 derniers jours${rangeLabel ? ` · ${rangeLabel}` : ''}`;
+    if (days === 30) return `30 derniers jours${rangeLabel ? ` · ${rangeLabel}` : ''}`;
+    if (days === 90) return `90 derniers jours${rangeLabel ? ` · ${rangeLabel}` : ''}`;
+    if (days === 365) return `12 derniers mois${rangeLabel ? ` · ${rangeLabel}` : ''}`;
+    return `30 derniers jours${rangeLabel ? ` · ${rangeLabel}` : ''}`;
+  };
+
+  const isFiltered = Boolean(rangeStart || rangeEnd || (days && days !== 30));
 
   const formatPrice = (price) => {
     if (!price && price !== 0) return '0 FCFA';
@@ -244,28 +264,49 @@ function AdminDashboard() {
     <AdminLayout>
       <div className="p-6">
         {/* Filter Bar */}
-        <div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap">
-            <select
-              value={getPeriodValue()}
-              onChange={(e) => handlePeriodChange(e.target.value)}
-              className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <option value="today">Aujourd'hui</option>
-              <option value="yesterday">Hier</option>
-              <option value="custom">Date precise</option>
-              <option value="7">7j</option>
-              <option value="30">30j</option>
-              <option value="90">90j</option>
-              <option value="365">1 an</option>
-            </select>
+        <div className="mb-6 flex items-start justify-between gap-3 flex-wrap">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {[
+                { value: 'today', label: "Aujourd'hui" },
+                { value: 'yesterday', label: 'Hier' },
+                { value: '7', label: '7j' },
+                { value: '30', label: '30j' },
+                { value: '90', label: '90j' },
+                { value: '365', label: '1 an' },
+                { value: 'custom', label: 'Personnalisé' },
+              ].map((option) => {
+                const active = getPeriodValue() === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handlePeriodChange(option.value)}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                      active
+                        ? 'bg-gray-900 text-white border-gray-900'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
             {getPeriodValue() === 'custom' && (
-              <>
+              <div className="flex flex-wrap items-center gap-2">
                 <input
                   type="date"
                   ref={dateInputRef}
-                  value={dateFilter}
-                  onChange={(e) => handleDateChange(e.target.value)}
+                  value={rangeStart}
+                  onChange={(e) => handleRangeStartChange(e.target.value)}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700"
+                />
+                <span className="text-sm text-gray-400">→</span>
+                <input
+                  type="date"
+                  value={rangeEnd}
+                  onChange={(e) => handleRangeEndChange(e.target.value)}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700"
                 />
                 <button
@@ -275,8 +316,16 @@ function AdminDashboard() {
                 >
                   Tout
                 </button>
-              </>
+              </div>
             )}
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>{getPeriodLabel()}</span>
+              {isFiltered && (
+                <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
+                  Filtré
+                </span>
+              )}
+            </div>
           </div>
           <select className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             <option>Tous les canaux</option>

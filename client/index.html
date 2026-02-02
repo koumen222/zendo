@@ -13,6 +13,9 @@
 
     <!-- Meta Pixel Code - Chargé après le chargement de la page -->
     <script>
+      window.__VITE_META_PIXEL_ID__ = '%VITE_META_PIXEL_ID%';
+    </script>
+    <script>
       (function () {
         const isLocalhost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
         const allowTracking = isLocalhost; // Tracking désactivé en production pour prioriser le rendu
@@ -45,7 +48,8 @@
             script.onerror = function () { clearTimeout(scriptTimeout); };
           }
 
-          fbq('init', '1615349376501958');
+          const pixelId = window?.__VITE_META_PIXEL_ID__ || '1615349376501958';
+          fbq('init', pixelId);
           fbq('track', 'PageView');
         }
 
