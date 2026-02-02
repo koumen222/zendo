@@ -209,7 +209,7 @@ function ProductPage() {
         </div>
         <button
           onClick={scrollToForm}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 sm:px-6 sm:py-4 rounded-full font-bold text-sm sm:text-lg shadow-2xl transition-all duration-300 hover:scale-110 animate-bounce"
+          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 sm:px-8 sm:py-5 rounded-full font-bold text-base sm:text-xl shadow-2xl transition-all duration-300 hover:scale-110 animate-bounce"
           style={{
             boxShadow: '0 10px 25px rgba(107, 33, 168, 0.4)',
           }}
