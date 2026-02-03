@@ -8,6 +8,7 @@ import AdminProductNewPage from './pages/AdminProductNewPage';
 import AdminProductEditPage from './pages/AdminProductEditPage';
 import AdminCustomersPage from './pages/AdminCustomersPage';
 import AdminAnalyticsPage from './pages/AdminAnalyticsPage';
+import MarketingPage from './pages/MarketingPage';
 import HomePage from './pages/HomePage';
 import CataloguePage from './pages/CataloguePage';
 import Header from './components/Header';
@@ -42,6 +43,7 @@ function App() {
           <Route path="/admin/products/:slug/edit" element={<AdminProductEditPage />} />
           <Route path="/admin/customers" element={<AdminCustomersPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+          <Route path="/admin/marketing" element={<MarketingPage />} />
         </Routes>
       </main>
       {!isAdminPage && !isProductPage && <Footer />}
