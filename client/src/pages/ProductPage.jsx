@@ -1,7 +1,189 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import CODForm from '../components/CODForm';
 import api from '../api';
+
+// Gumies Carousel Component
+const GumiesCarousel = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const carouselImages = [
+    new URL('../../Images gumies/8_23759eb2-f767-473d-ac7c-f071797e383f.png', import.meta.url).href,
+    new URL('../../Images gumies/8_23759eb2-f767-473d-ac7c-f071797e383f (1).png', import.meta.url).href,
+    new URL('../../Images gumies/7_cacc7d45-8a70-4104-ab68-ecf8e632ddd9.png', import.meta.url).href,
+    new URL('../../Images gumies/6_dfa0ef4d-4e73-47d6-8e0e-23927e0f2c7e.png', import.meta.url).href,
+    new URL('../../Images gumies/5_1dd6c2f1-6284-4a69-a6d6-c26eacc5f63d.png', import.meta.url).href,
+    new URL('../../Images gumies/4_80f4af47-b008-459f-9616-8d0a496efaf9.png', import.meta.url).href,
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(nextSlide, 4000); // Auto-advance every 4 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="w-full max-w-4xl mx-auto bg-white py-8">
+      <div className="relative">
+        {/* Main carousel image */}
+        <div className="relative overflow-hidden rounded-lg">
+          <img
+            src={carouselImages[currentSlide]}
+            alt={`Gumies carousel ${currentSlide + 1}`}
+            className="w-full h-auto object-cover"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
+          
+          {/* Navigation arrows */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all"
+            aria-label="Previous slide"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all"
+            aria-label="Next slide"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Dots indicator */}
+        <div className="flex justify-center mt-4 space-x-2">
+          {carouselImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentSlide === index
+                  ? 'bg-purple-600 w-6'
+                  : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Testimonials Carousel Component
+const TestimonialsCarousel = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  
+  const testimonialImages = [
+    new URL('../../Images gumies/3_c8c4026c-1ab1-4379-aac7-d8c68987de8b.png', import.meta.url).href,
+    new URL('../../Images gumies/2_24beeae9-5b2c-4fbc-b79e-8b6f7e0b2fe9.png', import.meta.url).href,
+    new URL('../../Images gumies/2_24beeae9-5b2c-4fbc-b79e-8b6f7e0b2fe9 (1).png', import.meta.url).href,
+    new URL('../../Images gumies/1_56a2e28f-9563-4710-aca3-9923247b9ac3.png', import.meta.url).href,
+    new URL('../../Images gumies/1_56a2e28f-9563-4710-aca3-9923247b9ac3 (1).png', import.meta.url).href,
+  ];
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % testimonialImages.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + testimonialImages.length) % testimonialImages.length);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentSlide(index);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(nextSlide, 5000); // Auto-advance every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="w-full max-w-4xl mx-auto bg-white py-12">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">Témoignages Clients</h2>
+        <p className="text-gray-600">Découvrez ce que nos clients disent de nos Gumies</p>
+      </div>
+      
+      <div className="relative">
+        {/* Main testimonial image */}
+        <div className="relative overflow-hidden rounded-lg">
+          <img
+            src={testimonialImages[currentSlide]}
+            alt={`Témoignage ${currentSlide + 1}`}
+            className="w-full h-auto object-cover"
+            style={{
+              width: '100%',
+              maxWidth: '1080px',
+              margin: '0 auto',
+              display: 'block',
+            }}
+          />
+          
+          {/* Navigation arrows */}
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all"
+            aria-label="Previous testimonial"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all"
+            aria-label="Next testimonial"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Dots indicator */}
+        <div className="flex justify-center mt-4 space-x-2">
+          {testimonialImages.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentSlide === index
+                  ? 'bg-purple-600 w-6'
+                  : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+              aria-label={`Go to testimonial ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Preload static images for faster loading
 const preloadImages = (slug) => {
@@ -9,7 +191,7 @@ const preloadImages = (slug) => {
     bbl: [
       new URL('../../bbl product/BBL1.png', import.meta.url).href,
       new URL('../../bbl product/BBL2.png', import.meta.url).href,
-      new URL('../../bbl product/BLL3.png', import.meta.url).href,
+      new URL('../../bbl product/BBL3.png', import.meta.url).href,
     ],
     gumies: [
       new URL('../../Images gumies/i1.png', import.meta.url).href,
@@ -21,10 +203,29 @@ const preloadImages = (slug) => {
       new URL('../../Images gumies/i7.png', import.meta.url).href,
       new URL('../../Images gumies/8.png', import.meta.url).href,
     ],
+    gumiesCarousel: [
+      new URL('../../Images gumies/8_23759eb2-f767-473d-ac7c-f071797e383f.png', import.meta.url).href,
+      new URL('../../Images gumies/8_23759eb2-f767-473d-ac7c-f071797e383f (1).png', import.meta.url).href,
+      new URL('../../Images gumies/7_cacc7d45-8a70-4104-ab68-ecf8e632ddd9.png', import.meta.url).href,
+      new URL('../../Images gumies/6_dfa0ef4d-4e73-47d6-8e0e-23927e0f2c7e.png', import.meta.url).href,
+      new URL('../../Images gumies/5_1dd6c2f1-6284-4a69-a6d6-c26eacc5f63d.png', import.meta.url).href,
+      new URL('../../Images gumies/4_80f4af47-b008-459f-9616-8d0a496efaf9.png', import.meta.url).href,
+    ],
+    testimonialsCarousel: [
+      new URL('../../Images gumies/3_c8c4026c-1ab1-4379-aac7-d8c68987de8b.png', import.meta.url).href,
+      new URL('../../Images gumies/2_24beeae9-5b2c-4fbc-b79e-8b6f7e0b2fe9.png', import.meta.url).href,
+      new URL('../../Images gumies/2_24beeae9-5b2c-4fbc-b79e-8b6f7e0b2fe9 (1).png', import.meta.url).href,
+      new URL('../../Images gumies/1_56a2e28f-9563-4710-aca3-9923247b9ac3.png', import.meta.url).href,
+      new URL('../../Images gumies/1_56a2e28f-9563-4710-aca3-9923247b9ac3 (1).png', import.meta.url).href,
+    ],
   };
 
-  const images = imageMap[slug] || [];
-  images.forEach(src => {
+  // Preload main images and carousel images
+  const mainImages = imageMap[slug] || [];
+  const carouselImages = slug === 'gumies' ? imageMap.gumiesCarousel || [] : [];
+  const testimonialsImages = slug === 'gumies' ? imageMap.testimonialsCarousel || [] : [];
+  
+  [...mainImages, ...carouselImages, ...testimonialsImages].forEach(src => {
     const link = document.createElement('link');
     link.rel = 'preload';
     link.as = 'image';
@@ -69,7 +270,7 @@ function ProductPage() {
             productImages = [
               new URL('../../bbl product/BBL1.png', import.meta.url).href,
               new URL('../../bbl product/BBL2.png', import.meta.url).href,
-              new URL('../../bbl product/BLL3.png', import.meta.url).href,
+              new URL('../../bbl product/BBL3.png', import.meta.url).href,
             ];
           } else if (p.slug === 'gumies') {
             productImages = [
@@ -102,6 +303,7 @@ function ProductPage() {
             sections: [],
             faq: [],
             whyItWorks: null,
+            slug: p.slug,
             guarantee: '',
             offers: p.offers || [],
           });
@@ -197,24 +399,29 @@ function ProductPage() {
       
       <div className="min-h-screen bg-white">
       {productData.images.length > 0 ? (
-        productData.images.map((src, index) => (
-          <div key={src} className="relative w-full max-w-4xl mx-auto bg-white">
-            <OptimizedImage
-              src={src}
-              alt={`${productData.name} ${index + 1}`}
-              className="w-full h-auto object-top"
-              index={index}
-              style={{
-                width: '100%',
-                maxWidth: '1080px',
-                objectFit: 'cover',
-                objectPosition: 'top',
-                margin: '0 auto',
-                display: 'block',
-              }}
-            />
-          </div>
-        ))
+        <>
+          {productData.images.map((src, index) => (
+            <div key={src} className="relative w-full max-w-4xl mx-auto bg-white">
+              <OptimizedImage
+                src={src}
+                alt={`${productData.name} ${index + 1}`}
+                className="w-full h-auto object-top"
+                index={index}
+                style={{
+                  width: '100%',
+                  maxWidth: '1080px',
+                  objectFit: 'cover',
+                  objectPosition: 'top',
+                  margin: '0 auto',
+                  display: 'block',
+                }}
+              />
+              {/* Add carousel after second image for gumies */}
+              {index === 1 && productData.slug === 'gumies' && <GumiesCarousel />}
+              {index === 3 && productData.slug === 'gumies' && <TestimonialsCarousel />}
+            </div>
+          ))}
+        </>
       ) : (
         <div className="w-full max-w-4xl mx-auto bg-white p-12 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">{productData.name}</h1>
@@ -223,6 +430,7 @@ function ProductPage() {
           )}
         </div>
       )}
+      </div>
 
       <section id="order" className="py-16 md:py-24">
         <div className="container mx-auto px-4">
@@ -248,7 +456,6 @@ function ProductPage() {
         >
           Commander maintenant
         </button>
-      </div>
       </div>
     </>
   );
