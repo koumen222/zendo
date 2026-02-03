@@ -28,8 +28,17 @@ function CODForm({ productSlug, offers }) {
 
   const getProductName = () => {
     if (normalizedSlug === 'hismile') return 'Hismile - Sérum blanchissant dents';
-    if (normalizedSlug) return normalizedSlug.toUpperCase();
+    if (normalizedSlug === 'bbl') return 'BBL - Solution peau éclatante';
+    if (normalizedSlug === 'gumies') return 'Gumies - Gummies bien-être';
+    if (normalizedSlug) return normalizedSlug.charAt(0).toUpperCase() + normalizedSlug.slice(1);
     return 'Produit';
+  };
+
+  const getProductCategory = () => {
+    if (normalizedSlug === 'hismile') return 'Santé Buccale';
+    if (normalizedSlug === 'bbl') return 'Beauté & Soins';
+    if (normalizedSlug === 'gumies') return 'Bien-être & Santé';
+    return 'Beauty & Health';
   };
 
   useEffect(() => {
@@ -48,6 +57,7 @@ function CODForm({ productSlug, offers }) {
           content_ids: [productSlug],
           content_type: 'product',
           content_name: getProductName(),
+          content_category: getProductCategory(),
           value: checkoutValue,
           currency: 'XAF',
           num_items: quantity,
@@ -86,6 +96,7 @@ function CODForm({ productSlug, offers }) {
             content_ids: [productSlug],
             content_type: 'product',
             content_name: getProductName(),
+            content_category: getProductCategory(),
             value: purchaseValue,
             currency: 'XAF',
             num_items: quantity,
@@ -94,7 +105,7 @@ function CODForm({ productSlug, offers }) {
           // Événement Lead pour le tracking de leads
           window.fbq('track', 'Lead', {
             content_name: getProductName(),
-            content_category: 'Beauty & Health',
+            content_category: getProductCategory(),
             value: purchaseValue,
             currency: 'XAF',
           });
@@ -263,6 +274,7 @@ function CODForm({ productSlug, offers }) {
                 content_ids: [productSlug],
                 content_type: 'product',
                 content_name: getProductName(),
+                content_category: getProductCategory(),
                 value: cartValue,
                 currency: 'XAF',
                 quantity: quantity,
