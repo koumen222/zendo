@@ -355,7 +355,10 @@ function ProductPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <p className="text-gray-500">Chargement...</p>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin"></div>
+          <p className="text-gray-500 text-lg">Chargement...</p>
+        </div>
       </div>
     );
   }
@@ -449,12 +452,13 @@ function ProductPage() {
         </div>
         <button
           onClick={scrollToForm}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-6 sm:px-8 sm:py-5 rounded-full font-bold text-lg sm:text-xl shadow-2xl transition-all duration-300 hover:scale-110 animate-bounce"
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 sm:px-8 sm:py-5 rounded-full font-bold text-sm sm:text-xl shadow-2xl transition-all duration-300 hover:scale-110 animate-bounce"
           style={{
             boxShadow: '0 10px 25px rgba(107, 33, 168, 0.4)',
           }}
         >
-          Commander maintenant
+          <span className="hidden sm:inline">Commander maintenant</span>
+          <span className="sm:hidden">Commander</span>
         </button>
       </div>
     </>
