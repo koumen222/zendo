@@ -3,13 +3,43 @@ import { useParams } from 'react-router-dom';
 import CODForm from '../components/CODForm';
 import api from '../api';
 
-const OptimizedImage = ({ src, alt, loading = 'lazy', fetchPriority, className, style }) => (
+// Preload static images for faster loading
+const preloadImages = (slug) => {
+  const imageMap = {
+    bbl: [
+      new URL('../../bbl product/BBL1.png', import.meta.url).href,
+      new URL('../../bbl product/BBL2.png', import.meta.url).href,
+      new URL('../../bbl product/BLL3.png', import.meta.url).href,
+    ],
+    gumies: [
+      new URL('../../Images gumies/i1.png', import.meta.url).href,
+      new URL('../../Images gumies/i2.png', import.meta.url).href,
+      new URL('../../Images gumies/i3.png', import.meta.url).href,
+      new URL('../../Images gumies/i4.png', import.meta.url).href,
+      new URL('../../Images gumies/i5.jpg', import.meta.url).href,
+      new URL('../../Images gumies/i6.png', import.meta.url).href,
+      new URL('../../Images gumies/i7.png', import.meta.url).href,
+      new URL('../../Images gumies/8.png', import.meta.url).href,
+    ],
+  };
+
+  const images = imageMap[slug] || [];
+  images.forEach(src => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = src;
+    document.head.appendChild(link);
+  });
+};
+
+const OptimizedImage = ({ src, alt, loading = 'lazy', fetchPriority, className, style, index }) => (
   <img
     src={src}
     alt={alt}
     className={className}
-    loading={loading}
-    fetchPriority={fetchPriority}
+    loading={index === 0 ? 'eager' : loading}
+    fetchPriority={index === 0 ? 'high' : fetchPriority}
     decoding="async"
     style={style}
   />
@@ -22,6 +52,9 @@ function ProductPage() {
   const [error, setError] = useState(null);
 
   const allowTracking = !import.meta.env.PROD;
+
+  // Preload images immediately when component mounts
+  preloadImages(slug);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -170,8 +203,7 @@ function ProductPage() {
               src={src}
               alt={`${productData.name} ${index + 1}`}
               className="w-full h-auto object-top"
-              loading={index === 0 ? 'eager' : 'lazy'}
-              fetchPriority={index === 0 ? 'high' : undefined}
+              index={index}
               style={{
                 width: '100%',
                 maxWidth: '1080px',
